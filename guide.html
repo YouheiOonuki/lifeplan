@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>使い方・よくある質問｜__TITLE__｜yorozu-craft</title>
-  <meta name="description" content="__TITLE__の使い方、計算の根拠、よくある質問、ご利用上の注意。">
+  <title>使い方・前提と出典｜ライフプラン 簡易シミュレーション｜yorozu-craft</title>
+  <meta name="description" content="ライフプラン 簡易シミュレーションの使い方、計算のしかた、生活費・教育費・医療費・年金の出典と確認日、よくある質問。">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://yorozu-craft.com/__REPO__/guide.html">
+  <link rel="canonical" href="https://yorozu-craft.com/lifeplan/guide.html">
 
-  <meta property="og:title" content="使い方・よくある質問｜__TITLE__">
-  <meta property="og:description" content="__TITLE__の使い方、計算の根拠、よくある質問、ご利用上の注意。">
+  <meta property="og:title" content="使い方・前提と出典｜ライフプラン 簡易シミュレーション">
+  <meta property="og:description" content="ライフプラン 簡易シミュレーションの使い方、計算のしかた、出典と確認日、よくある質問。">
   <meta property="og:type" content="article">
-  <meta property="og:url" content="https://yorozu-craft.com/__REPO__/guide.html">
+  <meta property="og:url" content="https://yorozu-craft.com/lifeplan/guide.html">
   <meta property="og:site_name" content="yorozu-craft">
   <meta property="og:locale" content="ja_JP">
-  <meta property="og:image" content="https://yorozu-craft.com/__REPO__/og-image.png">
+  <meta property="og:image" content="https://yorozu-craft.com/lifeplan/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
@@ -27,19 +27,24 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "無料で使えますか？",
-        "acceptedAnswer": { "@type": "Answer", "text": "はい。会員登録やインストールも不要で、ブラウザだけで使えます。" }
+        "name": "教育費はいくらで計算していますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "幼稚園から高校は文部科学省「子供の学習費調査」（令和5年度）の学習費総額、大学は国立の標準額と、私立の令和7年度入学者の平均です。自宅の外から通う場合は仕送り（年95.8万円）を足します。" }
       },
       {
         "@type": "Question",
-        "name": "入力した内容はどこに保存されますか？",
-        "acceptedAnswer": { "@type": "Answer", "text": "お使いのブラウザの中にだけ保存され、外部のサーバーには送信されません。" }
+        "name": "年金の見込みはどう計算していますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "老齢基礎年金は満額（年847,300円）、老齢厚生年金は 年収÷12 の標準報酬月額 × 5.481/1000 × 平成15年4月以降の加入月数です。ねんきん定期便の見込み額を「くわしい設定」に入れると、その額を使います。" }
+      },
+      {
+        "@type": "Question",
+        "name": "老後の生活費はいくらで計算していますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "総務省「家計調査」（2025年）の年齢階級別の消費支出から、住居・保健医療・教育を引いた額です。1人なら単身世帯、2人以上なら二人以上の世帯の表を使います。" }
       }
     ]
   }
   </script>
 
-  <!-- Google AdSense（サイト所有確認 + 広告配信スクリプト） -->
+  <!-- Google AdSense（サイト所有確認 + 広告配信スクリプト）。広告は使い方ページだけ（ROADMAP 7.22） -->
   <meta name="google-adsense-account" content="ca-pub-5375267956079717">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5375267956079717"
      crossorigin="anonymous"></script>
@@ -51,60 +56,103 @@
 <body>
 
   <header class="app-header">
-    <h1>__TITLE__ の使い方</h1>
-    <p class="subtitle">使い方・計算の根拠・よくある質問・ご利用上の注意</p>
+    <h1>ライフプラン 簡易シミュレーションの使い方</h1>
+    <p class="subtitle">使い方・計算のしかた・出典と確認日・よくある質問</p>
   </header>
 
   <main class="app-main">
 
-    <p class="card" style="text-align:center"><a href="./">▶ __TITLE__ を使う</a></p>
+    <p class="to-tool"><a href="./">ライフプラン 簡易シミュレーションを使う</a></p>
 
     <article class="card content" id="howto">
-      <h2>使い方</h2>
+      <h2>ライフプラン シミュレーションの使い方</h2>
       <ol>
-        <li>（手順を書く）</li>
+        <li>年齢・年収・家族・住まいの 4 項目を入れると結果が出ます。</li>
+        <li>貯蓄・利回り・退職・年金・子の進路は「くわしい設定」で変えます。</li>
+        <li>グラフの実線が入力どおり、破線は支出を 1 割増やした場合です。</li>
+        <li>年ごとの表は CSV に書き出し、A4 2 枚に印刷します。</li>
       </ol>
     </article>
 
-    <!-- 制度・単価など時点のある値を使うツールだけ残す。値は constants.js、画面にも時点を出す -->
+    <article class="card content" id="model">
+      <h2>計算のしかた</h2>
+      <ul>
+        <li>年末の残高 ＝ 年初の残高 ×（1 ＋ 利回り）＋ 手取りの収入 − 支出 を、本人が 100 歳になる年まで年ごとに計算します。</li>
+        <li>働いている間の手取りは、<a href="../seido-keisan/">制度の計算機</a>の手取りの計算で今の年収の手取り率を 1 回出し、毎年の年収に掛けます。</li>
+        <li>支出は生活費・住まい・教育・医療・車・保険・介護・特別費の合計で、ローンの返済のほかは物価の上昇率を掛けます。</li>
+        <li>医療費は年齢階級別の一人当たり国民医療費に自己負担の割合を掛けた額で、高額療養費と子どもの医療費の助成は入れていません。</li>
+        <li>年金の手取りは所得税と住民税だけを引き、国民健康保険料と介護保険料は引いていません。</li>
+      </ul>
+      <details>
+        <summary>入っていないもの・単純にしたところ</summary>
+        <ul>
+          <li>手取り率は今の年収と家族で 1 回だけ計算し、昇給しても同じ率を使います。子が育って扶養が変わっても率は変えません。</li>
+          <li>厚生年金は平成15年4月以降の加入だけを数え、それより前の期間は加入していない前提です。年収はすべて月給とみなし、賞与は分けません。</li>
+          <li>基礎年金は 40 年すべて納めた前提です。配偶者も同じ年齢で厚生年金に入り、同じ年齢で退職する前提です。パートなどで厚生年金に入っていなければ、配偶者の年金を手で入れてください。</li>
+          <li>年金は物価に合わせて増やしません。退職金の税、住宅ローン控除、児童手当、遺族年金は入っていません。</li>
+          <li>子は 18 歳未満のあいだ世帯の人数に入れ、医療費もその間だけ数えます。学年は 4〜12 月生まれとして年で数えます。</li>
+          <li>学習費は令和5年度の調査の値で、そのあとの制度の変更は入っていません。</li>
+          <li>残高がマイナスの年には利回りを掛けません。利回りは運用益の税を引いたあとの率を入れてください。</li>
+        </ul>
+      </details>
+    </article>
+
     <article class="card content" id="basis">
-      <h2>根拠と確認日</h2>
-      <dl class="info-list">
-        <dt>根拠</dt>
-        <dd>（法令・公式ページの名前）</dd>
-        <dt>最終確認日</dt>
-        <dd><time datetime="__DATE__">__DATE_JA__</time></dd>
-      </dl>
-      <p class="small">制度や単価は変わることがあります。最終確認日から時間がたっている場合は、公式ページで最新の情報をご確認ください。</p>
+      <h2>出典と確認日</h2>
+      <p>根拠: 総務省「家計調査」2025年・文部科学省「子供の学習費調査」令和5年度・厚生労働省「国民医療費」令和5年度・日本年金機構「老齢年金ガイド」令和8年度ほか。最終確認日 <time datetime="2026-10-03">2026-10-03</time>。</p>
+      <details>
+        <summary>使っている値と出典の一覧</summary>
+        <div class="table-wrap">
+        <table id="sources" class="src">
+          <thead><tr><th scope="col">値</th><th scope="col">数字</th><th scope="col">出典</th><th scope="col">確認日</th></tr></thead>
+          <tbody>
+          <tr data-key="kisoMangaku"><th scope="row">老齢基礎年金の満額（年額、令和8年度）</th><td><span data-yen="kisoMangaku.value">847,300</span> 円</td><td><a href="https://www.nenkin.go.jp/service/pamphlet/kyufu.files/LK03.pdf" rel="noopener">日本年金機構「老齢年金ガイド 令和8年度版」5ページ</a></td><td>2026-10-03</td></tr>
+          <tr data-key="kisoMonths"><th scope="row">老齢基礎年金の加入可能月数</th><td><span data-yen="kisoMonths.value">480</span> 月</td><td><a href="https://www.nenkin.go.jp/service/jukyu/seido/roureinenkin/jukyu-yoken/20150401-02.html" rel="noopener">日本年金機構「老齢基礎年金の受給要件・支給開始時期・年金額」</a></td><td>2026-10-03</td></tr>
+          <tr data-key="koseiRate"><th scope="row">老齢厚生年金の報酬比例部分の乗率（平成15年4月以降、1,000分の）</th><td><span data-yen="koseiRate.value">5.481</span>/1000</td><td><a href="https://www.nenkin.go.jp/service/pamphlet/kyufu.files/LK03.pdf" rel="noopener">日本年金機構「老齢年金ガイド 令和8年度版」6ページ</a></td><td>2026-10-03</td></tr>
+          <tr data-key="nenkinKojo65"><th scope="row">公的年金等に係る雑所得の速算表（65歳以上）</th><td>110万円以下 0円、330万円未満 −110万円、410万円未満 ×0.75−27万5千円、770万円未満 ×0.85−68万5千円、1,000万円未満 ×0.95−145万5千円、1,000万円以上 −195万5千円</td><td><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1600.htm" rel="noopener">国税庁 タックスアンサー No.1600「公的年金等の課税関係」（令和8年4月1日現在法令等）</a></td><td>2026-10-03</td></tr>
+          <tr data-key="living2p"><th scope="row">二人以上の世帯の1か月の支出（世帯主の年齢階級別、2025年平均）</th><td>消費支出・住居・保健医療・教育（円／月）<br>〜34歳 <span data-yen="living2p.value.0.1">285,285</span>・<span data-yen="living2p.value.0.2">31,971</span>・<span data-yen="living2p.value.0.3">13,729</span>・<span data-yen="living2p.value.0.4">5,170</span><br>35〜39歳 <span data-yen="living2p.value.1.1">309,879</span>・<span data-yen="living2p.value.1.2">20,546</span>・<span data-yen="living2p.value.1.3">15,114</span>・<span data-yen="living2p.value.1.4">10,131</span><br>40〜44歳 <span data-yen="living2p.value.2.1">334,162</span>・<span data-yen="living2p.value.2.2">17,680</span>・<span data-yen="living2p.value.2.3">13,373</span>・<span data-yen="living2p.value.2.4">21,637</span><br>45〜49歳 <span data-yen="living2p.value.3.1">360,965</span>・<span data-yen="living2p.value.3.2">18,714</span>・<span data-yen="living2p.value.3.3">12,498</span>・<span data-yen="living2p.value.3.4">30,771</span><br>50〜54歳 <span data-yen="living2p.value.4.1">379,853</span>・<span data-yen="living2p.value.4.2">16,305</span>・<span data-yen="living2p.value.4.3">15,411</span>・<span data-yen="living2p.value.4.4">38,685</span><br>55〜59歳 <span data-yen="living2p.value.5.1">353,358</span>・<span data-yen="living2p.value.5.2">19,115</span>・<span data-yen="living2p.value.5.3">13,820</span>・<span data-yen="living2p.value.5.4">20,576</span><br>60〜64歳 <span data-yen="living2p.value.6.1">340,393</span>・<span data-yen="living2p.value.6.2">22,442</span>・<span data-yen="living2p.value.6.3">15,923</span>・<span data-yen="living2p.value.6.4">5,644</span><br>65〜69歳 <span data-yen="living2p.value.7.1">314,980</span>・<span data-yen="living2p.value.7.2">16,984</span>・<span data-yen="living2p.value.7.3">18,488</span>・<span data-yen="living2p.value.7.4">2,011</span><br>70〜74歳 <span data-yen="living2p.value.8.1">289,080</span>・<span data-yen="living2p.value.8.2">18,526</span>・<span data-yen="living2p.value.8.3">16,725</span>・<span data-yen="living2p.value.8.4">374</span><br>75〜79歳 <span data-yen="living2p.value.9.1">265,966</span>・<span data-yen="living2p.value.9.2">17,006</span>・<span data-yen="living2p.value.9.3">16,937</span>・<span data-yen="living2p.value.9.4">465</span><br>80〜84歳 <span data-yen="living2p.value.10.1">240,450</span>・<span data-yen="living2p.value.10.2">13,881</span>・<span data-yen="living2p.value.10.3">17,058</span>・<span data-yen="living2p.value.10.4">141</span><br>85歳〜 <span data-yen="living2p.value.11.1">236,684</span>・<span data-yen="living2p.value.11.2">17,046</span>・<span data-yen="living2p.value.11.3">20,190</span>・<span data-yen="living2p.value.11.4">204</span></td><td><a href="https://www.e-stat.go.jp/stat-search/files?tclass=000000330002&amp;cycle=7&amp;year=20250" rel="noopener">総務省統計局「家計調査 家計収支編 二人以上の世帯 詳細結果表 年次 2025年」第3-2表</a></td><td>2026-10-03</td></tr>
+          <tr data-key="living1p"><th scope="row">単身世帯の1か月の支出（年齢階級別、2025年平均）</th><td>消費支出・住居・保健医療・教育（円／月）<br>34歳以下 <span data-yen="living1p.value.0.1">177,542</span>・<span data-yen="living1p.value.0.2">35,060</span>・<span data-yen="living1p.value.0.3">6,735</span>・<span data-yen="living1p.value.0.4">161</span><br>35〜59歳 <span data-yen="living1p.value.1.1">198,488</span>・<span data-yen="living1p.value.1.2">28,041</span>・<span data-yen="living1p.value.1.3">8,084</span>・<span data-yen="living1p.value.1.4">0</span><br>60歳以上 <span data-yen="living1p.value.2.1">158,546</span>・<span data-yen="living1p.value.2.2">13,103</span>・<span data-yen="living1p.value.2.3">9,780</span>・<span data-yen="living1p.value.2.4">0</span></td><td><a href="https://www.e-stat.go.jp/stat-search/files?page=1&amp;layout=datalist&amp;toukei=00200561&amp;tstat=000000330001&amp;cycle=7&amp;year=20250&amp;month=0&amp;tclass1=000000330001&amp;tclass2=000000330022&amp;tclass3=000000330023&amp;result_back=1&amp;tclass4val=0" rel="noopener">総務省統計局「家計調査 家計収支編 単身世帯 詳細結果表 年次 2025年」第2表</a></td><td>2026-10-03</td></tr>
+          <tr data-key="gakushuhi"><th scope="row">子供の学習費（学習費総額、令和5年度、訂正後）</th><td>公立・私立（円／年）<br>幼稚園 <span data-yen="gakushuhi.value.kinder.pub">184,646</span>・<span data-yen="gakushuhi.value.kinder.pri">347,338</span><br>小学校 <span data-yen="gakushuhi.value.elem.pub">366,599</span>・<span data-yen="gakushuhi.value.elem.pri">1,741,516</span><br>中学校 <span data-yen="gakushuhi.value.junior.pub">542,450</span>・<span data-yen="gakushuhi.value.junior.pri">1,560,359</span><br>高校 <span data-yen="gakushuhi.value.high.pub">596,954</span>・<span data-yen="gakushuhi.value.high.pri">1,179,261</span></td><td><a href="https://www.mext.go.jp/content/20260116-mxt_chousa01-000039333_1.pdf" rel="noopener">文部科学省「令和５年度子供の学習費調査結果のポイント」表1（令和8年1月16日）</a></td><td>2026-10-03</td></tr>
+          <tr data-key="univNational"><th scope="row">国立大学の授業料（年額）と入学料の標準額</th><td>授業料 <span data-yen="univNational.value.tuition">535,800</span> 円／年・入学料 <span data-yen="univNational.value.entrance">282,000</span> 円</td><td><a href="https://laws.e-gov.go.jp/law/416M60000080016" rel="noopener">国立大学等の授業料その他の費用に関する省令（e-Gov 法令検索）2条の表</a></td><td>2026-10-03</td></tr>
+          <tr data-key="univPrivate"><th scope="row">私立大学の授業料・入学料・施設設備費（令和7年度入学者の平均）</th><td>文科系 授業料 <span data-yen="univPrivate.value.bun.tuition">850,392</span>・入学料 <span data-yen="univPrivate.value.bun.entrance">219,951</span>・施設設備費 <span data-yen="univPrivate.value.bun.facility">141,892</span> 円<br>理科系 授業料 <span data-yen="univPrivate.value.ri.tuition">1,195,313</span>・入学料 <span data-yen="univPrivate.value.ri.entrance">245,362</span>・施設設備費 <span data-yen="univPrivate.value.ri.facility">161,378</span> 円</td><td><a href="https://www.mext.go.jp/a_menu/koutou/shinkou/07021403/1412031_00006.htm" rel="noopener">文部科学省「私立大学等の令和7年度入学者に係る学生納付金等調査結果について」資料1</a></td><td>2026-10-03</td></tr>
+          <tr data-key="shiokuri"><th scope="row">自宅外から通う大学生への仕送り（年額の平均）</th><td><span data-yen="shiokuri.value">958,000</span> 円／年</td><td><a href="https://www.jfc.go.jp/n/findings/pdf/kyouikuhi_chousa_k_r03.pdf" rel="noopener">日本政策金融公庫「教育費負担の実態調査結果」（2021年12月20日）</a></td><td>2026-10-03</td></tr>
+          <tr data-key="iryohi"><th scope="row">人口一人当たり国民医療費（年齢階級別、令和5年度）</th><td>0〜14歳 <span data-yen="iryohi.value.0.1">195,400</span><br>15〜44歳 <span data-yen="iryohi.value.1.1">148,300</span><br>45〜64歳 <span data-yen="iryohi.value.2.1">306,800</span><br>65歳以上 <span data-yen="iryohi.value.3.1">797,200</span><br>70歳以上 <span data-yen="iryohi.value.4.1">864,900</span><br>75歳以上 <span data-yen="iryohi.value.5.1">953,800</span>（円／年）</td><td><a href="https://www.mhlw.go.jp/toukei/saikin/hw/k-iryohi/23/dl/R05kekka.pdf" rel="noopener">厚生労働省「令和5（2023）年度 国民医療費の概況」結果の概要 表5</a></td><td>2026-10-03</td></tr>
+          <tr data-key="futan"><th scope="row">医療費の自己負担の割合</th><td>6歳（義務教育就学前）未満 2割、70歳未満 3割、70〜74歳 2割（現役並み 3割）、75歳以上 1割（一定以上所得 2割、現役並み 3割）</td><td><a href="https://www.mhlw.go.jp/content/000937919.pdf" rel="noopener">厚生労働省「医療費の一部負担（自己負担）割合について」</a></td><td>2026-10-03</td></tr>
+          <tr data-key="taishokukinRef"><th scope="row">定年退職者1人平均退職給付額（勤続20年以上かつ45歳以上、参考）</th><td>大学・大学院卒（管理・事務・技術職）1,896万円、高校卒（管理・事務・技術職）1,682万円、高校卒（現業職）1,183万円（参考。既定値にはしない）</td><td><a href="https://www.mhlw.go.jp/toukei/itiran/roudou/jikan/syurou/23/dl/gaiyou04.pdf" rel="noopener">厚生労働省「令和5年就労条件総合調査の概況」退職給付の支給実態 第22表</a></td><td>2026-10-03</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>手取り・社会保険料・所得税・住民税と、年金の繰上げ・繰下げの率は、<a href="../seido-keisan/">制度の計算機</a>の値と計算をそのまま使います（出典はそれぞれの使い方ページ）。</p>
+      </details>
     </article>
 
     <article class="card content" id="faq">
       <h2>よくある質問</h2>
       <dl class="faq">
-        <dt>無料で使えますか？</dt>
-        <dd>はい。会員登録やインストールも不要で、ブラウザだけで使えます。</dd>
-        <dt>入力した内容はどこに保存されますか？</dt>
-        <dd>お使いのブラウザの中にだけ保存され、外部のサーバーには送信されません。</dd>
+        <dt>教育費はいくらで計算していますか？</dt>
+        <dd>幼稚園から高校は文部科学省「子供の学習費調査」（令和5年度）の学習費総額、大学は国立の標準額と、私立の令和7年度入学者の平均です。自宅の外から通う場合は仕送り（年95.8万円）を足します。</dd>
+        <dt>年金の見込みはどう計算していますか？</dt>
+        <dd>老齢基礎年金は満額（年847,300円）、老齢厚生年金は 年収÷12 の標準報酬月額 × 5.481/1000 × 平成15年4月以降の加入月数です。ねんきん定期便の見込み額を「くわしい設定」に入れると、その額を使います。</dd>
+        <dt>老後の生活費はいくらで計算していますか？</dt>
+        <dd>総務省「家計調査」（2025年）の年齢階級別の消費支出から、住居・保健医療・教育を引いた額です。1人なら単身世帯、2人以上なら二人以上の世帯の表を使います。</dd>
       </dl>
     </article>
 
-    <!-- README「ツールを追加するとき」8: ツール固有の注意・データの扱いはここに書く -->
     <article class="card content" id="notes">
       <h2>ご利用上の注意・データの扱い</h2>
       <ul>
-        <li><strong>保存されるデータ</strong>：（何をブラウザに保存するか。保存しないならそう書く）</li>
-        <li><strong>バックアップ</strong>：「ファイルに書き出す」で、（保存している内容）を JSON ファイルにできます。ファイルはこの端末の中で作り、どこにも送信しません。機種変更のときやブラウザのデータを消す前に書き出しておき、新しい端末ではファイルを移して「ファイルから読み込む」を押してください（今の内容はファイルの内容に置き換わります）。（ブラウザに保存しないツールではこの行を消す）</li>
-        <li><strong>共有リンク</strong>：（共有機能があれば、リンクに何が含まれるか。URL の「#」以降に入るのでサーバーには送信されない）</li>
-        <li><strong>結果の扱い</strong>：（計算結果は目安であること、最終的な確認先など）</li>
+        <li><strong>結果の扱い</strong>：この計算は目安です。実際の額は年金事務所・勤め先・学校が決めます。</li>
+        <li><strong>保存されるデータ</strong>：入力内容はこの端末のブラウザ（localStorage、<code>lifeplan_</code> で始まるキー）にだけ保存され、外部には送信されません。書き出し・読み込み・消去は画面のボタンから。</li>
+        <li><strong>共有リンク</strong>：入力はリンクの「#」より後ろに入り、サーバーには送られません。リンクを渡した相手には入力が見えます。</li>
       </ul>
-      <p><a href="https://docs.google.com/forms/d/e/1FAIpQLSd8B90qh5lEIyr25iw1jOjdQjOyaPZ1_z2wMB4kH-EmEeJYWw/viewform?usp=pp_url&amp;entry.585564634=__REPO__" target="_blank" rel="noopener">ご要望・不具合の報告（Google フォーム）</a>：いただいた内容をもとに直します。お返事はしていません。</p>
-      <p>サイト全体の運営者情報・免責事項は<a href="../about.html">こちら</a>、プライバシーポリシーは<a href="../privacy-policy.html">こちら</a>です（すべてのツールで共通）。</p>
+      <p><a href="https://docs.google.com/forms/d/e/1FAIpQLSd8B90qh5lEIyr25iw1jOjdQjOyaPZ1_z2wMB4kH-EmEeJYWw/viewform?usp=pp_url&amp;entry.585564634=lifeplan" target="_blank" rel="noopener">ご要望・不具合の報告（Google フォーム）</a>：お返事はしていません。</p>
+      <p>運営者情報・免責事項は<a href="../about.html">こちら</a>、プライバシーポリシーは<a href="../privacy-policy.html">こちら</a>（全ツール共通）。</p>
     </article>
 
     <article class="card content" id="changelog">
       <h2>更新履歴</h2>
       <ul>
-        <li><time datetime="__DATE__">__DATE_JA__</time> 公開</li>
+        <li><time datetime="2026-10-03">2026年10月3日</time> 公開</li>
       </ul>
     </article>
 
@@ -114,7 +162,7 @@
     <nav class="footer-nav" aria-label="フッターナビゲーション">
       <ul>
         <li><a href="../">yorozu-craft トップ</a></li>
-        <li><a href="./">__TITLE__</a></li>
+        <li><a href="./">ライフプラン 簡易シミュレーション</a></li>
         <li><a href="./guide.html" aria-current="page">使い方・よくある質問</a></li>
         <li><a href="../about.html">運営者情報</a></li>
         <li><a href="../privacy-policy.html">プライバシーポリシー</a></li>

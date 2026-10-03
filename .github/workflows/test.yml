@@ -1,4 +1,5 @@
 # テストの自動実行（yorozu-craft の README「ツールを追加するとき」）。push と PR のたびに node --test を走らせる
+# 手取り・税の計算は seido-keisan の lib をそのまま使うので、seido-keisan の main も取ってきてテストに渡す（値を写さない）
 name: test
 
 on:
@@ -13,7 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: YouheiOonuki/seido-keisan
+          path: _seido-keisan
       - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: node --test tests/*.test.js
+        env:
+          SEIDO_KEISAN_DIR: ${{ github.workspace }}/_seido-keisan
