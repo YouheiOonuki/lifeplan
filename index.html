@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>__TITLE__｜yorozu-craft</title>
-  <meta name="description" content="__DESCRIPTION__">
+  <title>ライフプラン 簡易シミュレーション｜yorozu-craft</title>
+  <meta name="description" content="年齢・年収・家族・住まいの4項目で、貯蓄残高が100歳までどう動くかを年ごとに試算。生活費・教育費・医療費・年金は公的統計と制度の値を使います。登録不要・無料。">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://yorozu-craft.com/__REPO__/">
+  <link rel="canonical" href="https://yorozu-craft.com/lifeplan/">
 
-  <meta property="og:title" content="__TITLE__｜yorozu-craft">
-  <meta property="og:description" content="__DESCRIPTION__">
+  <meta property="og:title" content="ライフプラン 簡易シミュレーション｜yorozu-craft">
+  <meta property="og:description" content="年齢・年収・家族・住まいの4項目で、貯蓄残高が100歳までどう動くかを年ごとに試算。">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yorozu-craft.com/__REPO__/">
+  <meta property="og:url" content="https://yorozu-craft.com/lifeplan/">
   <meta property="og:site_name" content="yorozu-craft">
   <meta property="og:locale" content="ja_JP">
-  <meta property="og:image" content="https://yorozu-craft.com/__REPO__/og-image.png">
+  <meta property="og:image" content="https://yorozu-craft.com/lifeplan/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
@@ -25,103 +25,272 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "__TITLE__",
-    "description": "__DESCRIPTION__",
-    "url": "https://yorozu-craft.com/__REPO__/",
-    "applicationCategory": "UtilitiesApplication",
+    "name": "ライフプラン 簡易シミュレーション",
+    "description": "年齢・年収・家族・住まいの4項目で、貯蓄残高が100歳までどう動くかを年ごとに試算。",
+    "url": "https://yorozu-craft.com/lifeplan/",
+    "applicationCategory": "FinanceApplication",
     "operatingSystem": "All",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
     "inLanguage": "ja"
   }
   </script>
 
-  <!-- Google AdSense（サイト所有確認 + 広告配信スクリプト）。全画面で操作する画面なら script を消して meta だけ残す -->
+  <!-- Google AdSense: この画面は所有確認の meta だけ（広告のスクリプトは使い方ページだけ。ROADMAP 7.22） -->
   <meta name="google-adsense-account" content="ca-pub-5375267956079717">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5375267956079717"
-     crossorigin="anonymous"></script>
 
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <!-- PWA-BEGIN -->
-  <link rel="manifest" href="./manifest.webmanifest">
-  <!-- PWA-END -->
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-  <!-- 上端の固定バー（SCREEN.md 1.1・D59）。結果が出て、結果が画面の外にあるときだけ screen.js が出す。読み込み時は hidden のまま。
-       2 カラム（下の layout-2col）にするなら class に fixbar-narrow も足す（PC では出さない）。
-       印刷物（設定 → 出力）なら中身を <button type="button">印刷する</button> にし、main.js で onClick を渡す -->
   <div class="fixbar" id="fixbar" role="status" hidden>
     <a href="#result-card"><span id="fixbar-text"></span> ▸ 結果へ</a>
   </div>
 
   <header class="app-header">
-    <h1>__TITLE__</h1>
-    <!-- 冒頭は制度 2 文・60 字、道具 1 文・40 字（WRITING.md 1 章）。時点と「外部に送信しない」をここに -->
-    <p class="subtitle">__DESCRIPTION__ 入力は外部に送信しません。</p>
+    <h1>ライフプラン 簡易シミュレーション</h1>
+    <p class="subtitle">貯蓄残高が100歳までどう動くかを年ごとに試算します。入力は外部に送信しません。</p>
   </header>
 
-  <!-- 画面の骨組み「入力 → 結果」（yorozu-plans の docs/SCREEN.md 1.1。README「ツールを追加するとき」25）。
-       順番は 1 必須の入力 → 2 結果 → 3 くわしく入れる → 4 保存・書き出し → 5 使い方へのリンク。1 と 2 の間に段落・見出しを挟まない。
-       制度の計算機で PC を 2 カラムにするなら class に layout-2col を足す -->
   <main class="app-main">
     <form id="form" autocomplete="off" onsubmit="return false">
 
-      <!-- 1 必須の入力: 空だと結果が出ない項目だけ（制度 6・道具 3・印刷物 4 まで）。h2 は付けず legend。数値の既定は空欄＋ placeholder -->
       <fieldset class="card req">
-        <legend>金額</legend>
+        <legend>あなたと家族・住まい</legend>
+        <div class="row2">
+          <div class="field">
+            <label for="age">あなたの年齢</label>
+            <input type="number" id="age" inputmode="numeric" min="15" max="99" placeholder="例：35">
+          </div>
+          <div class="field">
+            <label for="income">年収（額面・万円）</label>
+            <input type="number" id="income" inputmode="decimal" min="0" step="0.1" placeholder="例：500">
+          </div>
+        </div>
         <div class="field">
-          <label for="amount">金額（円）</label>
-          <input type="number" id="amount" inputmode="numeric" placeholder="例：1234">
+          <span class="flabel" id="l-spouse">配偶者</span>
+          <div class="seg" role="radiogroup" aria-labelledby="l-spouse">
+            <label><input type="radio" name="spouse" value="no" checked> なし</label>
+            <label><input type="radio" name="spouse" value="yes"> あり</label>
+          </div>
+        </div>
+        <div class="field" id="f-spouse-income" hidden>
+          <label for="spouse-income">配偶者の年収（額面・万円）</label>
+          <input type="number" id="spouse-income" inputmode="decimal" min="0" step="0.1" placeholder="例：0">
+        </div>
+        <div class="field">
+          <label for="kids">子の生まれた年（西暦）</label>
+          <p class="hint" id="kids-hint">2 人以上は「、」で区切る。いなければ空欄</p>
+          <input type="text" id="kids" inputmode="numeric" placeholder="例：2020、2023" aria-describedby="kids-hint">
+        </div>
+        <div class="field">
+          <span class="flabel" id="l-house">住まい</span>
+          <div class="seg" role="radiogroup" aria-labelledby="l-house">
+            <label><input type="radio" name="house" value="rent" checked> 賃貸</label>
+            <label><input type="radio" name="house" value="own"> 持ち家</label>
+          </div>
+        </div>
+        <div class="field" id="f-rent">
+          <label for="rent">家賃（月・万円）</label>
+          <input type="number" id="rent" inputmode="decimal" min="0" step="0.1" placeholder="例：8">
+        </div>
+        <div class="row2" id="f-own" hidden>
+          <div class="field">
+            <label for="loan">ローンの返済（月・万円）</label>
+            <input type="number" id="loan" inputmode="decimal" min="0" step="0.1" placeholder="例：9">
+          </div>
+          <div class="field">
+            <label for="loan-years">残りの年数</label>
+            <input type="number" id="loan-years" inputmode="numeric" min="0" max="50" placeholder="例：25">
+          </div>
         </div>
       </fieldset>
 
-      <!-- 2 結果: 大きな数字 1 つ＋ 1 行（aria-live）。内訳は details.rels。下に免責 1 文と、ほかのツールへの導線 1〜2 行（README 21） -->
       <section class="card result-card" id="result-card" tabindex="-1" aria-labelledby="h-result">
         <h2 id="h-result">結果</h2>
         <div id="result-main" aria-live="polite">
           <p class="result-big" id="result">—</p>
-          <p class="result-sub" id="result-sub">金額を入れると出ます。</p>
+          <p class="result-sub" id="result-sub">4 項目を入れると出ます。</p>
+        </div>
+        <div class="kpis" id="kpis" hidden>
+          <div class="kpi"><span class="kpi-l">残高が 0 を切る年齢</span><span class="kpi-v" id="k-neg">—</span></div>
+          <div class="kpi"><span class="kpi-l">60 歳時点の残高</span><span class="kpi-v" id="k-60">—</span></div>
+          <div class="kpi"><span class="kpi-l">教育費の合計</span><span class="kpi-v" id="k-edu">—</span></div>
+        </div>
+        <figure class="chart" id="chart-box" hidden>
+          <div id="chart"></div>
+          <figcaption class="legend" id="legend"></figcaption>
+        </figure>
+        <div class="table-wrap" id="scen-box" hidden>
+          <table class="scen" id="scen"></table>
         </div>
         <details class="rels">
-          <summary>内訳と途中の計算</summary>
-          <p class="small" id="result-detail">—</p>
+          <summary>手取り率・年金・生活費の前提</summary>
+          <ul class="small" id="basis"><li>—</li></ul>
         </details>
-        <p class="small">この計算は目安です。</p>
+        <details class="rels" id="year-box">
+          <summary>年ごとの表（収入・支出・収支・残高）</summary>
+          <div class="table-wrap"><table class="years" id="years"></table></div>
+        </details>
+        <div class="btn-row no-print">
+          <button type="button" id="csv" class="btn btn-sub" disabled>CSV に書き出す</button>
+          <button type="button" id="print" class="btn btn-sub" disabled>印刷する（A4）</button>
+        </div>
+        <p class="small">この計算は目安です。実際の額は年金事務所・勤め先・学校が決めます。<a href="./guide.html">前提と出典</a></p>
       </section>
 
-      <!-- 3 くわしく入れる: 一部の人だけの項目。グループごとに 1 つの details。summary の .opt-state に今の状態（main.js の detailsSummary）。
-           開いた状態は保存しない。道具で任意の項目が無ければ、この節ごと消す -->
       <div class="opts">
-        <details class="card opt" id="opt-unit">
-          <summary>端数の単位: <span class="opt-state">100 円</span></summary>
+        <details class="card opt" id="opt-money">
+          <summary>今の貯蓄・利回り・物価: <span class="opt-state">貯蓄 0 円・利回り 0%</span></summary>
+          <div class="row2">
+            <div class="field">
+              <label for="savings">今の貯蓄（万円）</label>
+              <input type="number" id="savings" inputmode="decimal" min="0" step="0.1" placeholder="例：300">
+            </div>
+            <div class="field">
+              <label for="rate">資産の利回り（年・%）</label>
+              <input type="number" id="rate" inputmode="decimal" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="inflation">物価の上昇率（年・%）</label>
+              <input type="number" id="inflation" inputmode="decimal" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="raise">昇給率（年・%）</label>
+              <input type="number" id="raise" inputmode="decimal" step="0.1" placeholder="0">
+            </div>
+          </div>
+          <p class="hint">利回りは運用益の税を引いたあとの率で。物価は支出だけに掛けます。</p>
           <div class="field">
-            <label for="unit">切り上げる単位</label>
-            <select id="unit">
-              <option value="100" selected>100 円</option>
-              <option value="1000">1,000 円</option>
+            <label for="end-age">何歳まで見るか</label>
+            <select id="end-age">
+              <option value="80">80 歳</option><option value="85">85 歳</option><option value="90">90 歳</option>
+              <option value="95">95 歳</option><option value="100" selected>100 歳</option>
             </select>
           </div>
+        </details>
+
+        <details class="card opt" id="opt-work">
+          <summary>退職・退職金・年金: <span class="opt-state">65 歳で退職・年金は概算</span></summary>
+          <div class="row2">
+            <div class="field">
+              <label for="retire-age">退職の年齢</label>
+              <input type="number" id="retire-age" inputmode="numeric" min="40" max="80" placeholder="65">
+            </div>
+            <div class="field">
+              <label for="severance">退職金（手取り・万円）</label>
+              <input type="number" id="severance" inputmode="decimal" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="join-age">厚生年金に入った年齢</label>
+              <input type="number" id="join-age" inputmode="numeric" min="15" max="70" placeholder="22">
+            </div>
+            <div class="field">
+              <label for="p-start">年金を受け取り始める年齢</label>
+              <input type="number" id="p-start" inputmode="numeric" min="60" max="75" placeholder="65">
+            </div>
+            <div class="field">
+              <label for="p-self">あなたの年金（年額・万円）</label>
+              <input type="number" id="p-self" inputmode="decimal" min="0" step="0.1" placeholder="空欄なら概算">
+            </div>
+            <div class="field">
+              <label for="p-spouse">配偶者の年金（年額・万円）</label>
+              <input type="number" id="p-spouse" inputmode="decimal" min="0" step="0.1" placeholder="空欄なら概算">
+            </div>
+            <div class="field">
+              <label for="p-net">年金の手取り率（%）</label>
+              <input type="number" id="p-net" inputmode="decimal" min="0" max="100" step="0.1" placeholder="空欄なら税だけ引く">
+            </div>
+          </div>
+          <p class="hint">年金の額は「ねんきん定期便」の見込み額（65 歳から・年額）を入れると近くなります。60〜75 歳の増減の率は<a href="../seido-keisan/nenkin-kuriage/">年金の繰上げ・繰下げ</a>と同じです。</p>
+        </details>
+
+        <details class="card opt" id="opt-family">
+          <summary>配偶者の年齢・子の進路: <span class="opt-state">子なし</span></summary>
+          <div class="field" id="f-spouse-age" hidden>
+            <label for="spouse-age">配偶者の年齢</label>
+            <input type="number" id="spouse-age" inputmode="numeric" min="15" max="99" placeholder="空欄ならあなたと同じ">
+          </div>
+          <div id="kid-rows"></div>
+          <p class="hint" id="kid-none">子の生まれた年を入れると、子ごとに選べます。</p>
+        </details>
+
+        <details class="card opt" id="opt-living">
+          <summary>生活費・車・保険・医療・介護: <span class="opt-state">家計調査の平均</span></summary>
+          <div class="row2">
+            <div class="field">
+              <label for="living">生活費（月・万円）</label>
+              <input type="number" id="living" inputmode="decimal" min="0" step="0.1" placeholder="空欄なら家計調査">
+            </div>
+            <div class="field">
+              <label for="medical">医療費の自己負担（年・万円）</label>
+              <input type="number" id="medical" inputmode="decimal" min="0" step="0.1" placeholder="空欄なら概算">
+            </div>
+            <div class="field">
+              <label for="car">車の費用（年・万円）</label>
+              <input type="number" id="car" inputmode="decimal" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="insurance">保険料（年・万円）</label>
+              <input type="number" id="insurance" inputmode="decimal" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="kaigo">介護の費用（年・万円）</label>
+              <input type="number" id="kaigo" inputmode="decimal" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="kaigo-from">介護は何歳から</label>
+              <input type="number" id="kaigo-from" inputmode="numeric" min="40" max="110" placeholder="75">
+            </div>
+          </div>
+          <div class="field">
+            <label for="kubun">70 歳からの医療費の負担</label>
+            <select id="kubun">
+              <option value="ippan" selected>一般（70〜74 歳 2 割・75 歳から 1 割）</option>
+              <option value="ichitei">75 歳から 2 割（一定以上の所得）</option>
+              <option value="genekinami">3 割（現役並みの所得）</option>
+            </select>
+          </div>
+          <p class="hint">生活費の既定は家計調査の平均から住まい・医療・教育を引いた額で、車の費用の平均も含みます。</p>
+        </details>
+
+        <details class="card opt" id="opt-house">
+          <summary>更新料・固定資産税と修繕: <span class="opt-state">更新料 1 か月</span></summary>
+          <div class="row2">
+            <div class="field">
+              <label for="renewal">更新料（2 年ごと・家賃の何か月分）</label>
+              <input type="number" id="renewal" inputmode="decimal" min="0" max="12" step="0.5" placeholder="1">
+            </div>
+            <div class="field">
+              <label for="own-cost">固定資産税と修繕（年・万円）</label>
+              <input type="number" id="own-cost" inputmode="decimal" min="0" step="0.1" placeholder="0">
+            </div>
+          </div>
+        </details>
+
+        <details class="card opt" id="opt-special">
+          <summary>特別費（年と額）: <span class="opt-state">なし</span></summary>
+          <div id="special-rows"></div>
+          <button type="button" class="btn btn-sub" id="special-add">＋ 足す</button>
         </details>
       </div>
     </form>
 
-    <!-- 4 保存・書き出し（README「ツールを追加するとき」20。定型 2 文＋ボタン） -->
     <details class="card opt no-print" id="file-box">
       <summary>入力の保存・書き出し</summary>
-      <p class="small">入力内容はこの端末のブラウザ（localStorage、キー <code>__REPO___draft</code>）にだけ保存され、外部には送信されません。書き出し・読み込みはこの画面のボタンから。</p>
+      <p class="small">入力内容はこの端末のブラウザ（localStorage、<code>lifeplan_</code> で始まるキー）にだけ保存され、外部には送信されません。書き出し・読み込み・消去はこの画面のボタンから。</p>
       <div class="btn-row">
-        <button type="button" id="share" class="btn">結果を開くリンクをコピー</button>
-        <button type="button" id="backup-export" class="btn">ファイルに書き出す</button>
-        <button type="button" id="backup-import" class="btn">ファイルから読み込む</button>
+        <button type="button" id="share" class="btn btn-sub">結果を開くリンクをコピー</button>
+        <button type="button" id="backup-export" class="btn btn-sub">ファイルに書き出す</button>
+        <button type="button" id="backup-import" class="btn btn-sub">ファイルから読み込む</button>
       </div>
       <input type="file" id="backup-file" accept=".json,application/json" hidden>
       <p id="backup-msg" class="small" aria-live="polite"></p>
+      <p><button type="button" class="btn btn-sub" data-reset-storage="lifeplan_">保存した内容をすべて消す（初期状態に戻す）</button></p>
     </details>
 
-    <!-- 5 使い方へのリンク（1 行） -->
-    <p class="small"><a href="./guide.html">使い方・根拠・よくある質問</a></p>
+    <p class="small"><a href="./guide.html">使い方・前提と出典・よくある質問</a></p>
 
   </main>
 
@@ -129,7 +298,7 @@
     <nav class="footer-nav" aria-label="フッターナビゲーション">
       <ul>
         <li><a href="../">yorozu-craft トップ</a></li>
-        <li><a href="./" aria-current="page">__TITLE__</a></li>
+        <li><a href="./" aria-current="page">ライフプラン 簡易シミュレーション</a></li>
         <li><a href="./guide.html">使い方・よくある質問</a></li>
         <li><a href="../about.html">運営者情報</a></li>
         <li><a href="../privacy-policy.html">プライバシーポリシー</a></li>
@@ -138,10 +307,26 @@
     <p>&copy; 2026 yorozu-craft. All rights reserved.</p>
   </footer>
 
+  <!-- 手取り・税・社会保険料・年金の率は seido-keisan（同じサイトの制度の計算機）の値と計算をそのまま読む（値を写さない） -->
+  <script src="../seido-keisan/lib/kyuyo-table-2026.js"></script>
+  <script src="../seido-keisan/lib/kyuyo-table-2025.js"></script>
+  <script src="../seido-keisan/lib/tax2026.js"></script>
+  <script src="../seido-keisan/lib/nenmatsu.js"></script>
+  <script src="../seido-keisan/lib/juminzei-values.js"></script>
+  <script src="../seido-keisan/lib/juminzei.js"></script>
+  <script src="../seido-keisan/lib/ikukyu-values.js"></script>
+  <script src="../seido-keisan/lib/ikukyu.js"></script>
+  <script src="../seido-keisan/lib/shienkin-values.js"></script>
+  <script src="../seido-keisan/lib/shienkin.js"></script>
+  <script src="../seido-keisan/lib/dattai-values.js"></script>
+  <script src="../seido-keisan/lib/take-home-values.js"></script>
+  <script src="../seido-keisan/lib/take-home.js"></script>
+  <script src="../seido-keisan/lib/kuriage-values.js"></script>
   <script src="./constants.js"></script>
   <script src="./screen.js"></script>
   <script src="./calc.js"></script>
   <script src="./main.js"></script>
+  <script src="./reset-storage.js"></script>
   <!-- Cloudflare Web Analytics（Cookie を使わないアクセス解析） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b79bf821e1fd4b6683866d493b1de426"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
