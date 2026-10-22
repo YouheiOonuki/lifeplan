@@ -121,10 +121,12 @@
   });
 
   // --- 特別費の行（年と額。何件でも） ---
+  // 共有リンクから来た値を属性に入れるので、引用符を外す（K191 段 3 F6）
+  function attr(v) { return String(v == null ? '' : v).replace(/[&"<>]/g, function (c) { return { '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' }[c]; }); }
   function renderSpecials() {
     $('special-rows').innerHTML = specials.map(function (x, i) {
-      return '<div class="row2 special"><div class="field"><label for="sp-y' + i + '">年（西暦）</label><input type="number" id="sp-y' + i + '" inputmode="numeric" data-i="' + i + '" data-f="year" value="' + x.year + '" placeholder="例：' + (THIS_YEAR + 5) + '"></div>' +
-        '<div class="field"><label for="sp-a' + i + '">額（万円）</label><input type="number" id="sp-a' + i + '" inputmode="decimal" step="0.1" data-i="' + i + '" data-f="amount" value="' + x.amount + '" placeholder="例：200"></div>' +
+      return '<div class="row2 special"><div class="field"><label for="sp-y' + i + '">年（西暦）</label><input type="number" id="sp-y' + i + '" inputmode="numeric" data-i="' + i + '" data-f="year" value="' + attr(x.year) + '" placeholder="例：' + (THIS_YEAR + 5) + '"></div>' +
+        '<div class="field"><label for="sp-a' + i + '">額（万円）</label><input type="number" id="sp-a' + i + '" inputmode="decimal" step="0.1" data-i="' + i + '" data-f="amount" value="' + attr(x.amount) + '" placeholder="例：200"></div>' +
         '<button type="button" class="btn btn-sub sp-del" data-del="' + i + '" aria-label="' + (i + 1) + ' 件目を消す">消す</button></div>';
     }).join('');
   }
@@ -280,7 +282,8 @@
     last = res;
     render(res);
     summaries(res.input);
-    store.set('draft', state);
+    // 共有リンクで開いた直後は、端末に残っている入力を上書きしない。触ったら保存する（K191 段 3 F4。loan-sim と同じ形）
+    if (!fromShare) store.set('draft', state);
   }
   var timer = null;
   function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(update, 300); }
@@ -338,11 +341,14 @@
       if (!r.ok) { el.backupMsg.textContent = r.error; return; }
       if (!window.confirm('ファイルの内容で、今の入力を置き換えます。よろしいですか？')) return;
       apply(r.data.draft);
+      fromShare = false;
       update();
       el.backupMsg.textContent = 'ファイルから読み込みました。';
     }, function () { el.backupMsg.textContent = 'ファイルを読み取れませんでした。'; });
   });
 
-  apply(fromShareHash(location.hash) || store.get('draft', {}));
+  var shared = fromShareHash(location.hash), fromShare = !!shared;
+  document.addEventListener('input', function () { fromShare = false; }, { once: true });
+  apply(shared || store.get('draft', {}));
   update();
 })();
