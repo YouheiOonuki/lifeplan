@@ -1,6 +1,6 @@
 /* ===========================
-   ライフプラン 簡易シミュレーション — yorozu-craft 共通の和紙風の配色
-   色・字・余白はトークン（下の yorozu-common の :root）だけを使う。ツール固有の色を足すときは end の後に :root を書く。
+   ライフプラン 簡易シミュレーション — yorozu-craft 共通の皮（v2）
+   色・字・余白はトークン（上の yorozu-common の皮）だけを使う。
    ダークモードは端末の設定に自動で合わせる（prefers-color-scheme。手動切替は付けない）
    =========================== */
 /* yorozu-common:begin v2 — サイト共通の土台と皮。正本は youheioonuki.github.io の tools/common/v2/base.css と skin.css（yorozu-plans DESIGN.md）。
@@ -71,116 +71,41 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 :where(html:not([data-skin="base"])) :where(.notice, [data-keep]) { border-left: 4px solid var(--text); background: var(--bg-2); padding: var(--sp-2) var(--sp-3); }
 :where(html:not([data-skin="base"])) :where(.fixed-bar) { position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); padding: var(--sp-2) var(--sp-4); }
 /* yorozu-common:end */
-/* yorozu-v1-carry — v1 の共通（和紙の色、2026-09-23〜10-17）から、このファイルのページが使っていた見た目をそのまま持ち込んだ（yorozu-plans ROADMAP 7.99、K192 段 3 の 0）。
-   段 3 の 2〜4 でこのページを v2 のトークンに載せ替えるときに、yorozu-v1-carry:end まで消す */
-:root {
-  color-scheme: light dark;
-  --bg: #f0ebe0; --bg-2: #e6dfd0; --card: #faf6ee; --text: #3a3025; --muted: #6e604f;
-  --accent: #8b4513; --accent-soft: #f3e6d8; --border: #cfc0a0; --input-border: #857561; --shadow: rgba(58, 48, 37, 0.12);
-  --error: #ce0000; --ok: #197a4b; --focus: #ffd43d; --focus-ring: #000;
-  --font-ui: "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  --lh-body: 1.7; --lh-tight: 1.4; --radius: 8px;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1814; --bg-2: #25201a; --card: #2b251e; --text: #ece4d6; --muted: #b9ab96;
-    --accent: #e0a066; --accent-soft: #3a2e22; --border: #4a3f33; --input-border: #8c7d68; --shadow: rgba(0, 0, 0, 0.4);
-    --error: #ff8a7a; --ok: #6fcf97; --focus-ring: #ffd43d; --focus: #000;
-  }
-}
-body { font-family: var(--font-ui); background: var(--bg); color: var(--text); line-height: var(--lh-body); }
-a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-@media (hover: hover) { a:hover { text-decoration-thickness: 3px; } }
-:where(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
-.app-header > p { max-width: 40em; margin-left: auto; margin-right: auto; }
-/* yorozu-v1-carry:end */
-
 
 /* ヘッダー */
-.app-header {
-  text-align: center;
-  padding: var(--sp-6) var(--sp-4) var(--sp-4);
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
-}
-.app-header h1 { font-size: var(--fs-xl); color: var(--accent); line-height: var(--lh-tight); }
-.app-header .subtitle { font-size: var(--fs-s); color: var(--muted); margin-top: var(--sp-1); }
+.app-header { text-align: center; padding: var(--sp-6) var(--sp-4) var(--sp-4); background: var(--bg-2); border-bottom: 1px solid var(--border); }
+.app-header h1 { color: var(--accent); }
+.app-header .subtitle { font-size: var(--fs-s); color: var(--muted); margin: var(--sp-1) auto 0; max-width: 40em; }
 
 /* レイアウト */
 .app-main { max-width: 680px; margin: 0 auto; padding: var(--sp-4); }
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: var(--sp-4);
-  margin-bottom: var(--sp-4);
-}   /* quieter: 影を付けない（枠と面で十分。重なりを示す固定バーだけ影を残す） */
-.card h2 {
-  font-size: var(--fs-l);
-  line-height: var(--lh-tight);
-  color: var(--text);   /* quieter: 見出しは本文の色。アクセントの色はリンク・結果・主なボタンだけ */
-  border-bottom: 1px solid var(--border);
-  padding-bottom: var(--sp-2);
-  margin-bottom: var(--sp-3);
-}
+.card { margin-bottom: var(--sp-4); }
+.card h2 { color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: var(--sp-2); margin-bottom: var(--sp-3); }
 
 /* 入力 */
 .field { margin-bottom: var(--sp-4); }
 .field label { display: block; font-weight: 700; font-size: var(--fs-m); margin-bottom: var(--sp-1); }
 .field .hint { font-size: var(--fs-s); color: var(--muted); margin-bottom: var(--sp-2); }
-.field input[type="number"], .field input[type="text"], .field select {
-  width: 100%;
-  max-width: 16rem;
-  padding: var(--sp-2) var(--sp-2);
-  font-size: 1rem;
-  min-height: var(--tap);
-  border: 1px solid var(--input-border);   /* DADS インプットテキスト: 枠は 3:1 以上（WCAG 1.4.11） */
-  border-radius: 6px;
-  background: var(--card);
-  color: var(--text);
-}
+.field input[type="number"], .field input[type="text"], .field select { width: 100%; max-width: 16rem; padding: var(--sp-2); }
 
-.btn {
-  display: inline-block;
-  padding: var(--sp-2) var(--sp-4);
-  border: none;
-  border-radius: 6px;
-  background: var(--accent);
-  color: var(--card);
-  font-size: var(--fs-m);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* 控えめなボタン（保存・書き出し・消去など、主な操作ではないもの）。枠だけ。主な操作は .btn だけ（distill: 目立つボタンは 1 画面に 1 つ） */
-.btn-sub { background: transparent; color: var(--accent); border: 1px solid var(--accent); font-weight: 400; }
+.btn { min-height: var(--tap); }
 
 /* 使い方ページの先頭の「ツールを使う」1 行（箱に入れない） */
 .to-tool { margin: 0 0 var(--sp-4); font-weight: 700; }
 .to-tool a::after { content: ' →'; }
 
 /* 読みもの（guide.html） */
-.content h3 { font-size: var(--fs-m); margin: var(--sp-4) 0 var(--sp-1); }
-.content p, .content li { font-size: var(--fs-m); }   /* typeset: 本文は 16px（DADS） */
+.content h3 { margin: var(--sp-4) 0 var(--sp-1); }
+.content p, .content li { font-size: var(--fs-m); }
 .content p + p { margin-top: var(--sp-2); }
 .content ul, .content ol { padding-left: 1.3rem; margin: var(--sp-1) 0; }
 .faq dt { font-weight: 700; margin-top: var(--sp-3); font-size: var(--fs-m); }
 .faq dt::before { content: 'Q. '; color: var(--muted); }
 .faq dd { font-size: var(--fs-m); color: var(--text); padding: var(--sp-1) 0 var(--sp-2) var(--sp-4); border-bottom: 1px solid var(--border); }
-.info-list { display: grid; grid-template-columns: max-content 1fr; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-m); }
-.info-list dt { font-weight: 600; }
-.info-list dd { color: var(--muted); }
 .small { font-size: var(--fs-s); color: var(--muted); margin-top: var(--sp-2); }
 
 /* フッター */
-.app-footer {
-  text-align: center;
-  padding: var(--sp-4);
-  font-size: var(--fs-s);
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  margin-top: var(--sp-2);
-}
+.app-footer { text-align: center; padding: var(--sp-4); font-size: var(--fs-s); color: var(--muted); border-top: 1px solid var(--border); margin-top: var(--sp-2); }
 .footer-nav ul { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-bottom: var(--sp-3); }
 .footer-nav a { color: var(--muted); text-decoration: none; }
 .footer-nav a:hover, .footer-nav a[aria-current="page"] { color: var(--accent); }
@@ -190,74 +115,73 @@ a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset:
 }
 
 /* ===========================
-   画面の骨組み（yorozu-plans の docs/SCREEN.md。README「ツールを追加するとき」25）
-   必須の入力（fieldset.req）→ 結果（.result-card）→ くわしく入れる（details.opt）、上端の固定バー、PC の 2 カラム
-   seido-keisan/nenmatsu と gakushu-print の試験（2026-09-24）から取り出したもの
+   画面の骨組み（yorozu-plans の docs/SCREEN.md）
+   必須の入力（fieldset.req）→ 結果（#result-card）→ くわしく入れる（details.opt）、上端の固定バー、PC の 2 列
    =========================== */
 fieldset.card { min-width: 0; }
 .req legend {
   float: left; width: 100%;   /* legend を枠の上に載せず、h2 と同じ見た目で枠の中に置く */
-  font-size: var(--fs-l); line-height: var(--lh-tight); font-weight: 700; color: var(--text);
+  font-size: var(--fs-l); line-height: var(--lh-tight); font-weight: 800; color: var(--text);
   border-bottom: 1px solid var(--border); padding-bottom: var(--sp-2); margin-bottom: var(--sp-3);
 }
 .req legend + * { clear: both; }
 
 /* 結果: 大きな数字 1 つ＋ 1 行。内訳は details.rels */
-.result-card { scroll-margin-top: 56px; }   /* 固定バー（44px）で見出しが隠れないように */
-.result-card:focus { outline: none; }
-.result-big { font-size: 1.8rem; font-weight: 700; color: var(--accent); line-height: 1.3; }
+#result-card { scroll-margin-top: 56px; }   /* 固定バー（44px）で見出しが隠れないように */
+#result-card:focus { outline: none; }
+.result-num { color: var(--accent); line-height: 1.3; }
 .result-sub { font-size: var(--fs-s); color: var(--muted); }
-details.rels > summary { cursor: pointer; min-height: 44px; padding: var(--sp-2) 0; list-style: none; color: var(--accent); font-size: var(--fs-m); }
+details.rels > summary { cursor: pointer; padding: var(--sp-2) 0; list-style: none; color: var(--accent); font-size: var(--fs-m); }
 details.rels > summary::-webkit-details-marker { display: none; }
 details.rels > summary::before { content: '▸'; margin-right: var(--sp-2); }
 details.rels[open] > summary::before { content: '▾'; }
 
 /* くわしく入れる（1 グループ 1 つの details）。summary の .opt-state に今の状態を出す（screen.js の detailsSummary） */
 details.card.opt { padding: 0 var(--sp-4); margin-bottom: var(--sp-3); }
-details.card.opt > summary {
-  cursor: pointer; display: block; min-height: 44px; padding: var(--sp-3) 0;
-  color: var(--accent); font-weight: 700; font-size: var(--fs-m); list-style: none;
-}
+details.card.opt > summary { display: block; padding: var(--sp-3) 0; color: var(--accent); font-size: var(--fs-m); list-style: none; }
 details.card.opt > summary::-webkit-details-marker { display: none; }
 details.card.opt > summary::before { content: '▸'; margin-right: var(--sp-2); }
 details.card.opt[open] > summary::before { content: '▾'; }
 details.card.opt[open] { padding-bottom: var(--sp-3); }
 details.card.opt[open] > summary { border-bottom: 1px solid var(--border); margin-bottom: var(--sp-3); }
-.opt-state { color: var(--text); font-weight: normal; }
-.btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-3) 0; }   /* ボタンの間隔（SCREEN.md 5 章。4 章の上下 12px 以上は margin で） */
-.btn-row .btn { min-height: 44px; }
+.opt-state { color: var(--text); font-weight: 400; }
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-3) 0; }
 
-/* 固定バー（SCREEN.md 0 章の 3・D59）: 上端に 1 行、高さ 44px。下端は AdSense のアンカー広告が使う。
-   読み込み時は hidden（screen.js が出し入れする。fixed なのでレイアウトはずれない） */
-.fixbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: 44px;
-  background: var(--card); border-bottom: 2px solid var(--accent); box-shadow: 0 2px 8px var(--shadow);
-}
-.fixbar a, .fixbar button {
-  display: block; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 var(--sp-4); height: 42px; line-height: 42px; text-align: center;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: inherit; font-weight: 700;
-  color: var(--accent); background: none; border: none; text-decoration: none; cursor: pointer;
-}
-.fixbar a:focus-visible, .fixbar button:focus-visible { outline-offset: -4px; }   /* 共通の輪を内側に（上端で切れないように） */
+/* 固定バー（SCREEN.md 0 章の 3・D59・D413）: 上端に 1 行、高さ 44px。下端は AdSense のアンカー広告が使う。
+   読み込み時は hidden（screen.js が出し入れする） */
+.fixed-bar { position: fixed; top: 0; bottom: auto; left: 0; right: 0; z-index: 50; height: 44px; padding: 0; border-top: 0; border-bottom: 2px solid var(--accent); }
+.fixed-bar a { display: block; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 var(--sp-4); height: 42px; line-height: 42px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; text-decoration: none; }
+.fixed-bar a:focus-visible { outline-offset: -4px; }   /* 共通の輪を内側に（上端で切れないように） */
 
-/* PC（900px 以上）の 2 カラム（D63: 制度の計算機だけ）。<main class="app-main layout-2col"> にすると、
-   左に入力・右に結果（sticky）。結果が常に見えるので、固定バーに fixbar-narrow も付けて PC では出さない */
-@media (min-width: 900px) {
-  .fixbar-narrow { display: none !important; }
+/* PC（960px 以上）: 入力を左・結果を右の 2 列（D371）。1 画面目に両方入る。結果が常に見えるので固定バーは出さない */
+@media (min-width: 960px) {
+  .fixed-bar { display: none !important; }
   .layout-2col { max-width: 1120px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 26rem); column-gap: var(--sp-4); align-items: start; }
   .layout-2col > *, .layout-2col > form > * { grid-column: 1; }
   .layout-2col > form { display: contents; }
-  .layout-2col .result-card { grid-column: 2; grid-row: 1 / span 30; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; }
+  .layout-2col #result-card { grid-column: 2; grid-row: 1 / span 30; position: sticky; top: var(--sp-4); max-height: calc(100vh - 2rem); overflow-y: auto; }
 }
 
 @media print {
-  .fixbar, .no-print { display: none !important; }
+  @page { size: A4; margin: 12mm; }
+  .fixed-bar, .no-print { display: none !important; }
   /* 印刷では折りたたみの中も出す（途中の計算・入れた値を紙に残す） */
   main details::details-content { content-visibility: visible; display: block; }
   main details > summary::before { content: none; }
   .layout-2col { display: block; }
-  .layout-2col .result-card { position: static; max-height: none; overflow: visible; }
-  /* 広告を印刷に出さない規則は yorozu-common の中にある */
+  .layout-2col #result-card { position: static; max-height: none; overflow: visible; }
+  body { background: #fff; color: #000; }
+  .app-footer, .opts, fieldset.req, details.rels > summary { display: none !important; }
+  .card { border: 1px solid #999; }
+  #result-card { break-inside: auto; }
+  .chart-svg { max-height: 85mm; width: auto; max-width: 100%; margin: 0 auto; }
+  .app-header { padding: 0 0 4mm; }
+  .app-main { max-width: none; padding: 0; }
+  #year-box { break-before: page; }
+  table.years { font-size: 7pt; line-height: 1.15; }
+  table.years th, table.years td { padding: 0 2mm; }
+  #basis { font-size: 8pt; }
+  .chart-svg .tick { font-size: 11px; }
 }
 
 /* ===========================
@@ -302,22 +226,6 @@ table.scen th, table.scen td, table.years th, table.years td { border-bottom: 1p
 table.scen th[scope="row"], table.scen thead th:first-child { text-align: left; }
 table.years tfoot td { text-align: left; color: var(--muted); border: none; }
 .neg, tr.neg td { color: var(--error); font-weight: 700; }
-
-@media print {
-  @page { size: A4; margin: 12mm; }
-  body { background: #fff; color: #000; }
-  .app-footer, .opts, fieldset.req, details.rels > summary { display: none !important; }
-  .card { box-shadow: none; border: 1px solid #999; }
-  .result-card { break-inside: auto; }
-  .chart-svg { max-height: 85mm; width: auto; max-width: 100%; margin: 0 auto; }
-  .app-header { padding: 0 0 4mm; }
-  .app-main { max-width: none; padding: 0; }
-  #year-box { break-before: page; }
-  table.years { font-size: 7pt; line-height: 1.15; }
-  table.years th, table.years td { padding: 0 2mm; }
-  #basis { font-size: 8pt; }
-  .chart-svg .tick { font-size: 11px; }
-}
 table.src { width: 100%; border-collapse: collapse; font-size: var(--fs-s); }
 table.src th, table.src td { border-bottom: 1px solid var(--border); padding: var(--sp-1) var(--sp-2); vertical-align: top; text-align: left; }
 table.src td:nth-child(2) { font-variant-numeric: tabular-nums; }
