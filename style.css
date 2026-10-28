@@ -229,3 +229,6 @@ table.years tfoot td { text-align: left; color: var(--muted); border: none; }
 table.src { width: 100%; border-collapse: collapse; font-size: var(--fs-s); }
 table.src th, table.src td { border-bottom: 1px solid var(--border); padding: var(--sp-1) var(--sp-2); vertical-align: top; text-align: left; }
 table.src td:nth-child(2) { font-variant-numeric: tabular-nums; }
+
+/* 1 行に 1 つのリンク（使い方への行・案内のカード・出典の一覧）も押せる高さに（DESIGN の 44px。K192 段 3 の 4 の検収） */
+:where(html:not([data-skin="base"])) :where(p, li) > a:only-child { display: inline-flex; align-items: center; min-height: var(--tap); }
