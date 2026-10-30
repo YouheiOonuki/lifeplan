@@ -127,7 +127,7 @@
     $('special-rows').innerHTML = specials.map(function (x, i) {
       return '<div class="row2 special"><div class="field"><label for="sp-y' + i + '">年（西暦）</label><input type="number" id="sp-y' + i + '" inputmode="numeric" data-i="' + i + '" data-f="year" value="' + attr(x.year) + '" placeholder="例：' + (THIS_YEAR + 5) + '"></div>' +
         '<div class="field"><label for="sp-a' + i + '">額（万円）</label><input type="number" id="sp-a' + i + '" inputmode="decimal" step="0.1" data-i="' + i + '" data-f="amount" value="' + attr(x.amount) + '" placeholder="例：200"></div>' +
-        '<button type="button" class="btn btn-sub sp-del" data-del="' + i + '" aria-label="' + (i + 1) + ' 件目を消す">消す</button></div>';
+        '<button type="button" class="btn sp-del" data-del="' + i + '" aria-label="' + (i + 1) + ' 件目を消す">消す</button></div>';
     }).join('');
   }
   $('special-add').addEventListener('click', function () {
