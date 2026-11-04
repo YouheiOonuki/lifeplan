@@ -284,6 +284,7 @@
     summaries(res.input);
     // 共有リンクで開いた直後は、端末に残っている入力を上書きしない。触ったら保存する（K191 段 3 F4。loan-sim と同じ形）
     if (!fromShare) store.set('draft', state);
+    window.yzUsed?.();
   }
   var timer = null;
   function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(update, 300); }
