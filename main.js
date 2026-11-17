@@ -161,17 +161,10 @@
   var bar = window.YorozuScreen.fixedBar({ bar: 'fixbar', watch: 'result-main', jump: 'result-card', text: 'fixbar-text' });
   var last = null;
 
-  function chartSvg(res) {
+  // 折れ線の枠と目盛りは retire-mark.js の frame（退職の年齢の印と同じ目盛りを使う）。mk = 印の位置（無ければ null）
+  function chartSvg(res, f, mk) {
     var sc = res.scenarios, rows0 = sc[0].rows;
-    var W = Math.max(320, Math.min(760, $('chart').clientWidth || 640)), H = Math.round(W < 500 ? W * 0.62 : W * 0.42), L = 58, R = 26, T = 14, B = 34;
-    var all = []; sc.forEach(function (x) { x.rows.forEach(function (r) { all.push(r.balance); }); });
-    all.push(0);
-    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
-    if (hi === lo) hi = lo + 1;
-    var pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
-    var a0 = rows0[0].age, a1 = rows0[rows0.length - 1].age;
-    var X = function (age) { return L + (W - L - R) * (a1 === a0 ? 0 : (age - a0) / (a1 - a0)); };
-    var Yp = function (v) { return T + (H - T - B) * (hi - v) / (hi - lo); };
+    var W = f.W, H = f.H, L = f.L, R = f.R, T = f.T, B = f.B, lo = f.lo, hi = f.hi, a0 = f.a0, a1 = f.a1, X = f.x, Yp = f.y;
     var out = ['<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="貯蓄残高の推移（年齢ごと）" class="chart-svg">'];
     // 目盛り（縦: 4 本、横: 10 歳ごと）
     var step = niceStep((hi - lo) / 4);
@@ -198,6 +191,7 @@
     });
     var n = sc[0].summary.negAge;
     if (n !== null) out.push('<circle cx="' + X(n).toFixed(1) + '" cy="' + Yp(0).toFixed(1) + '" r="5" class="dot-neg"/>');
+    if (mk) out.push('<line x1="' + mk.x.toFixed(1) + '" x2="' + mk.x.toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '" class="retire-line"/>');
     out.push('</svg>');
     return out.join('');
   }
@@ -206,6 +200,85 @@
     var m = x / p;
     return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
   }
+
+  // --- 退職の年齢の印（Q-429）: 折れ線の上の印を左右に引く・← → で、退職の年齢の欄を 1 歳ずつ変える ---
+  // 範囲は欄の min・max（属性から取る）と今の年齢。欄が空なら計算が使っている既定の年齢に印を出し、動かした時にはじめて欄に入れる
+  var RM = window.RetireMark;
+  var markView = null;   // 直近の { f: 枠と目盛り, r: 動かせる範囲 }（引くときに使う）
+  var slow = false;      // 1 回の計算と描き直しが 50 ms を超えたら、引いている間は計算せず、指を離した時だけ計算する
+  function renderChart(res) {
+    var box = $('chart'), ri = $('retire-age');
+    var f = RM.frame(res, box.clientWidth);
+    var r = RM.range(ri.min, ri.max, res.input.age);
+    var mk = r ? RM.place(res, f, r) : null;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = chartSvg(res, f, mk);
+    var old = box.querySelector('svg');
+    if (old) box.replaceChild(tmp.firstChild, old); else box.insertBefore(tmp.firstChild, box.firstChild);
+    markView = r ? { f: f, r: r } : null;
+    var btn = $('retire-mark');
+    btn.hidden = !mk;
+    if (!mk) return;
+    btn.style.top = (mk.y / f.H * 100) + '%';
+    btn.dataset.vside = mk.y < f.H * 0.45 ? 'b' : 't';   // 年齢の字は、上が詰まっていれば印の下に
+    showMark(mk.at, mk.age, f);
+  }
+  function showMark(at, age, f) {
+    var btn = $('retire-mark'), x = f.x(Math.min(at, f.a1));
+    btn.style.left = (x / f.W * 100) + '%';
+    btn.dataset.age = at;
+    btn.dataset.side = x > f.W * 0.7 ? 'r' : x < f.W * 0.3 ? 'l' : 'c';
+    $('retire-mark-num').textContent = age;
+    btn.setAttribute('aria-label', '退職の年齢 ' + age + ' 歳');
+  }
+  function runNow() {
+    clearTimeout(timer);
+    var t0 = performance.now();
+    update();
+    slow = performance.now() - t0 > 50;
+  }
+  // 退職の年齢を age にする。欄が空のまま既定と同じ年齢なら、欄に入れない（動いていない）
+  function setRetire(age, compute) {
+    var ri = $('retire-age');
+    if (ri.value === String(age)) return;
+    if (ri.value === '' && last && last.input && last.input.retireAge === age) return;
+    ri.value = age;
+    fromShare = false;
+    if (compute) runNow();
+  }
+  var markBtn = $('retire-mark');
+  markBtn.addEventListener('keydown', function (e) {
+    var d = RM.keyStep(e.key, e.shiftKey);
+    if (!d || !markView) return;
+    e.preventDefault();
+    var cur = Number(this.dataset.age), next = RM.clamp(cur + d, markView.r);
+    if (next !== cur) setRetire(next, true);   // 範囲の端では動かない（欄にも入れない）
+  });
+  var drag = null;
+  markBtn.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || !markView) return;
+    e.preventDefault();
+    this.focus();
+    this.setPointerCapture(e.pointerId);
+    drag = { id: e.pointerId, f: markView.f, r: markView.r, rect: $('chart').querySelector('svg').getBoundingClientRect(), age: Number(this.dataset.age), moved: false };
+  });
+  markBtn.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var px = (e.clientX - drag.rect.left) / drag.rect.width * drag.f.W;
+    var a = RM.clamp(RM.ageAtX(px, drag.f), drag.r);
+    if (a === drag.age) return;
+    drag.age = a; drag.moved = true;
+    setRetire(a, !slow);
+    if (slow) showMark(a, a, drag.f);   // 計算は指を離した時。印だけ指の下に付いてくる
+  });
+  function markUp(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var moved = drag.moved;
+    drag = null;
+    if (slow && moved) runNow();
+  }
+  markBtn.addEventListener('pointerup', markUp);
+  markBtn.addEventListener('pointercancel', markUp);
 
   function negText(sum, d) {
     return sum.negAge === null ? d.endAge + ' 歳まで 0 を切りません' : sum.negAge + ' 歳';
@@ -233,7 +306,7 @@
     $('k-neg').textContent = sm.negAge === null ? 'なし' : sm.negAge + ' 歳';
     $('k-60').textContent = d.age > 60 ? '—（60 歳を過ぎています）' : manYen(sm.at60);
     $('k-edu').textContent = manYen(sm.eduTotal);
-    $('chart').innerHTML = chartSvg(res);
+    renderChart(res);
     var marks = ['実線', '破線', '点線'];
     $('legend').innerHTML = res.scenarios.map(function (x, i) { return '<span class="lg lg-' + i + '">' + marks[i] + '：' + x.label + '</span>'; }).join('') +
       (sm.negAge !== null ? '<span class="lg lg-neg">赤：0 を切った年</span>' : '');

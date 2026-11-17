@@ -199,6 +199,24 @@ fieldset.kid legend { font-weight: 700; padding: 0 var(--sp-1); }
 .chart-svg .l-rate { stroke: var(--text); stroke-dasharray: 2 4; }
 .chart-svg .l-neg { stroke: var(--error); stroke-width: 3.5; }
 .chart-svg .dot-neg { fill: var(--error); }
+/* 退職の年齢の印（Q-429）: 折れ線の上のボタン。当たりは 44px、見た目は丸と縦の線。紙には出さない */
+#chart { position: relative; }
+.chart-svg .retire-line { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.retire-mark {
+  position: absolute; width: var(--tap); height: var(--tap); min-height: var(--tap); padding: 0; margin: 0;
+  transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: 50%; touch-action: none; cursor: ew-resize; color: var(--text);
+}
+.retire-mark[hidden] { display: none; }
+.retire-mark-dot { width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--card); border: 3px solid var(--accent); }
+.retire-mark:hover .retire-mark-dot, .retire-mark:active .retire-mark-dot { background: var(--accent); }
+.retire-mark-label {
+  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-size: var(--fs-s); font-weight: 700; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 var(--sp-1);
+}
+.retire-mark[data-vside="b"] .retire-mark-label { bottom: auto; top: calc(100% - 4px); }
+.retire-mark[data-side="l"] .retire-mark-label { left: 0; transform: none; }
+.retire-mark[data-side="r"] .retire-mark-label { left: auto; right: 0; transform: none; }
 .legend { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); font-size: var(--fs-s); color: var(--muted); }
 .lg-neg { color: var(--error); font-weight: 700; }
 
@@ -241,4 +259,5 @@ table.src td:nth-child(2) { font-variant-numeric: tabular-nums; }
   table.years tr { break-inside: avoid; }
   #basis { font-size: 8pt; }
   .chart-svg .tick { font-size: 11px; }
+  .chart-svg .retire-line { display: none; }
 }
