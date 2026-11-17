@@ -167,28 +167,6 @@ details.card.opt[open] > summary { border-bottom: 1px solid var(--border); margi
   .layout-2col #result-card { grid-column: 2; grid-row: 1 / span 30; position: sticky; top: var(--sp-4); max-height: calc(100vh - 2rem); overflow-y: auto; }
 }
 
-@media print {
-  @page { size: A4; margin: 12mm; }
-  .fixed-bar, .no-print { display: none !important; }
-  /* 印刷では折りたたみの中も出す（途中の計算・入れた値を紙に残す） */
-  main details::details-content { content-visibility: visible; display: block; }
-  main details > summary::before { content: none; }
-  .layout-2col { display: block; }
-  .layout-2col #result-card { position: static; max-height: none; overflow: visible; }
-  body { background: #fff; color: #000; }
-  .app-footer, .opts, fieldset.req, details.rels > summary { display: none !important; }
-  .card { border: 1px solid #999; }
-  #result-card { break-inside: auto; }
-  .chart-svg { max-height: 85mm; width: auto; max-width: 100%; margin: 0 auto; }
-  .app-header { padding: 0 0 4mm; }
-  .app-main { max-width: none; padding: 0; }
-  #year-box { break-before: page; }
-  table.years { font-size: 7pt; line-height: 1.15; }
-  table.years th, table.years td { padding: 0 2mm; }
-  #basis { font-size: 8pt; }
-  .chart-svg .tick { font-size: 11px; }
-}
-
 /* ===========================
    ライフプラン 簡易シミュレーション 固有（入力の 2 列・結果の 3 つの数字・グラフ・表・印刷 A4 2 枚）
    =========================== */
@@ -237,3 +215,30 @@ table.src td:nth-child(2) { font-variant-numeric: tabular-nums; }
 
 /* 1 行に 1 つのリンク（使い方への行・案内のカード・出典の一覧）も押せる高さに（DESIGN の 44px。K192 段 3 の 4 の検収） */
 :where(html:not([data-skin="base"])) :where(p, li) > a:only-child { display: inline-flex; align-items: center; min-height: var(--tap); }
+
+/* 印刷 A4 2 枚: 1 枚目に結果・折れ線・3 つの前提、2 枚目に年ごとの表（2 段組み。100 歳まで 86 行でも 1 枚）。
+   上の画面の規則（表の字の大きさ・余白）より後ろに置く（前に置くと画面の規則が勝って、表が 3〜4 枚に延びた。Q-369） */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  .fixed-bar, .no-print { display: none !important; }
+  /* 印刷では折りたたみの中も出す（途中の計算・入れた値を紙に残す） */
+  main details::details-content { content-visibility: visible; display: block; }
+  main details > summary::before { content: none; }
+  .layout-2col { display: block; }
+  .layout-2col #result-card { position: static; max-height: none; overflow: visible; }
+  body { background: #fff; color: #000; }
+  .app-footer, .opts, fieldset.req, details.rels > summary { display: none !important; }
+  .card { border: 1px solid #999; }
+  #result-card { break-inside: auto; }
+  #chart-box { break-inside: avoid; }
+  .chart-svg { max-height: 85mm; width: auto; max-width: 100%; margin: 0 auto; }
+  .app-header { padding: 0 0 4mm; }
+  .app-main { max-width: none; padding: 0; }
+  #year-box { break-before: page; }
+  #year-box .table-wrap { overflow: visible; columns: 2; column-gap: 6mm; }
+  table.years { font-size: 7pt; line-height: 1.15; }
+  table.years th, table.years td { padding: 0 1.5mm; }
+  table.years tr { break-inside: avoid; }
+  #basis { font-size: 8pt; }
+  .chart-svg .tick { font-size: 11px; }
+}
