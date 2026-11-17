@@ -93,15 +93,15 @@ test('基本の生活費 ＝ 家計調査の 消費支出 − 住居 − 保健�
 });
 
 test('医療費 ＝ 年齢階級別の一人当たり国民医療費 × 自己負担の割合', () => {
-  assert.equal(Calc.medicalYear(3, 'ippan'), Math.round(195400 * 0.2));
-  assert.equal(Calc.medicalYear(10, 'ippan'), Math.round(195400 * 0.3));
-  assert.equal(Calc.medicalYear(30, 'ippan'), Math.round(148300 * 0.3));
-  assert.equal(Calc.medicalYear(50, 'ippan'), Math.round(306800 * 0.3));
-  assert.equal(Calc.medicalYear(67, 'ippan'), Math.round(797200 * 0.3));
-  assert.equal(Calc.medicalYear(72, 'ippan'), Math.round(864900 * 0.2));
-  assert.equal(Calc.medicalYear(72, 'genekinami'), Math.round(864900 * 0.3));
-  assert.equal(Calc.medicalYear(80, 'ippan'), Math.round(953800 * 0.1));
-  assert.equal(Calc.medicalYear(80, 'ichitei'), Math.round(953800 * 0.2));
+  assert.equal(Calc.medicalYear(3, 'ippan'), Math.round(191800 * 0.2));
+  assert.equal(Calc.medicalYear(10, 'ippan'), Math.round(191800 * 0.3));
+  assert.equal(Calc.medicalYear(30, 'ippan'), Math.round(152600 * 0.3));
+  assert.equal(Calc.medicalYear(50, 'ippan'), Math.round(313300 * 0.3));
+  assert.equal(Calc.medicalYear(67, 'ippan'), Math.round(809800 * 0.3));
+  assert.equal(Calc.medicalYear(72, 'ippan'), Math.round(880400 * 0.2));
+  assert.equal(Calc.medicalYear(72, 'genekinami'), Math.round(880400 * 0.3));
+  assert.equal(Calc.medicalYear(80, 'ippan'), Math.round(968000 * 0.1));
+  assert.equal(Calc.medicalYear(80, 'ichitei'), Math.round(968000 * 0.2));
 });
 
 test('年金の概算: 基礎は満額、厚生は 標準報酬月額 × 5.481/1000 × 平成15年4月以降の月数', needSeido, () => {

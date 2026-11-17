@@ -1,6 +1,6 @@
 // ===========================
 // ライフプラン 簡易シミュレーション — 既定値の表（値・出典・確認日をセットで。ここにだけ書く）
-// どの値も下の url の原文（公的統計・法令・日本年金機構の資料）を 2026-10-03 に開いて写した。
+// どの値も下の url の原文（公的統計・法令・日本年金機構の資料）を開いて写した（開いた日は各行の checked）。
 // 手取り・社会保険料・所得税・住民税の値は写さず、seido-keisan の値ファイルと計算（lib/*.js）をそのまま読む（calc.js の deps）。
 // 年金の繰上げ・繰下げの率も seido-keisan の lib/kuriage-values.js を読む。
 // guide.html の「出典の表」はこの表と同じ数字（tests/calc.test.js で突き合わせる）。
@@ -9,7 +9,8 @@
 (function (root) {
   'use strict';
 
-  var CHECKED = '2026-10-03';   // 下の出典を最後に原文で確かめた日
+  var CHECKED = '2026-10-03';   // 下の出典を最後に原文で確かめた日（行ごとに開き直した日は CHECKED_1117 など別に持つ。ページの最終確認日はいちばん古い日）
+  var CHECKED_1117 = '2026-11-17'; // 10 月・12 月の保守（国民医療費・子供の学習費調査・私立大学の学生納付金等調査）を開き直した日
   var ESTAT_2P = 'https://www.e-stat.go.jp/stat-search/files?tclass=000000330002&cycle=7&year=20250';
   var ESTAT_1P = 'https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200561&tstat=000000330001&cycle=7&year=20250&month=0&tclass1=000000330001&tclass2=000000330022&tclass3=000000330023&result_back=1&tclass4val=0';
 
@@ -89,7 +90,7 @@
       },
       label: '子供の学習費（学習費総額、令和5年度、訂正後）',
       source: '文部科学省「令和５年度子供の学習費調査結果のポイント」表1（令和8年1月16日）',
-      url: 'https://www.mext.go.jp/content/20260116-mxt_chousa01-000039333_1.pdf', checked: CHECKED,
+      url: 'https://www.mext.go.jp/content/20260116-mxt_chousa01-000039333_1.pdf', checked: CHECKED_1117,
       note: '高校は全日制。令和6年12月の公表値のうち公立小・私立小・公立中・公立高・私立高は訂正後の値',
     },
     univNational: {
@@ -106,7 +107,7 @@
       },
       label: '私立大学の授業料・入学料・施設設備費（令和7年度入学者の平均）',
       source: '文部科学省「私立大学等の令和7年度入学者に係る学生納付金等調査結果について」資料1',
-      url: 'https://www.mext.go.jp/a_menu/koutou/shinkou/07021403/1412031_00006.htm', checked: CHECKED,
+      url: 'https://www.mext.go.jp/a_menu/koutou/shinkou/07021403/1412031_00006.htm', checked: CHECKED_1117,
       note: '文科系学部・理科系学部。2年目からも授業料と施設設備費を同じ額で数える',
     },
     shiokuri: {
@@ -118,11 +119,11 @@
 
     // --- 医療（人口一人当たり国民医療費 × 自己負担の割合） ---
     iryohi: {
-      value: [[0, 195400], [15, 148300], [45, 306800], [65, 797200], [70, 864900], [75, 953800]],
-      label: '人口一人当たり国民医療費（年齢階級別、令和5年度）',
-      source: '厚生労働省「令和5（2023）年度 国民医療費の概況」結果の概要 表5',
-      url: 'https://www.mhlw.go.jp/toukei/saikin/hw/k-iryohi/23/dl/R05kekka.pdf', checked: CHECKED,
-      note: '0〜14歳 195.4千円、15〜44歳 148.3千円、45〜64歳 306.8千円、65歳以上 797.2千円、70歳以上 864.9千円、75歳以上 953.8千円（70・75歳以上は再掲の値を使う）',
+      value: [[0, 191800], [15, 152600], [45, 313300], [65, 809800], [70, 880400], [75, 968000]],
+      label: '人口一人当たり国民医療費（年齢階級別、令和6年度）',
+      source: '厚生労働省「令和6（2024）年度 国民医療費の概況」結果の概要 表5',
+      url: 'https://www.mhlw.go.jp/toukei/saikin/hw/k-iryohi/24/dl/R06kekka.pdf', checked: CHECKED_1117,
+      note: '0〜14歳 191.8千円、15〜44歳 152.6千円、45〜64歳 313.3千円、65歳以上 809.8千円、70歳以上 880.4千円、75歳以上 968.0千円（70・75歳以上は再掲の値を使う）',
     },
     futan: {
       value: { preschool: 0.2, under70: 0.3, from70: 0.2, from75: 0.1, from75mid: 0.2, genekinami: 0.3 },
