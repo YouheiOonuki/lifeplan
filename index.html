@@ -120,7 +120,7 @@
           <div class="kpi"><span class="kpi-l">教育費の合計</span><span class="kpi-v" id="k-edu">—</span></div>
         </div>
         <figure class="chart" id="chart-box" hidden>
-          <div id="chart"></div>
+          <div id="chart"><button type="button" id="retire-mark" class="retire-mark no-print" hidden aria-keyshortcuts="ArrowLeft ArrowRight Shift+ArrowLeft Shift+ArrowRight"><span class="retire-mark-label" aria-hidden="true">退職の年齢 <span id="retire-mark-num"></span></span><span class="retire-mark-dot" aria-hidden="true"></span></button></div>
           <figcaption class="legend" id="legend"></figcaption>
         </figure>
         <div class="table-wrap" id="scen-box" hidden>
@@ -327,6 +327,7 @@
   <script src="./constants.js"></script>
   <script src="./screen.js"></script>
   <script src="./calc.js"></script>
+  <script src="./retire-mark.js"></script>
   <script src="./main.js"></script>
   <script src="./reset-storage.js"></script>
   <!-- Cloudflare Web Analytics（Cookie を使わないアクセス解析） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b79bf821e1fd4b6683866d493b1de426"}'></script><!-- End Cloudflare Web Analytics -->

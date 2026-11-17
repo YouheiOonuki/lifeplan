@@ -1,0 +1,100 @@
+// 退職の年齢の印（Q-429）: 印の位置 ＝ 欄の値（空なら計算が使う既定の年齢）、範囲の端、今の年齢と同じ、キーの 1 歩
+// 計算は calc.js の normalizeInput・simulate をそのまま呼ぶ（率は固定の値。手取りの計算の正しさは calc.test.js が見る）
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const Calc = require('../calc.js');
+const C = require('../constants.js');
+const RM = require('../retire-mark.js');
+
+// 範囲は index.html の欄の属性から取る（数を写さない）
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const tag = /<input[^>]*id="retire-age"[^>]*>/.exec(html)[0];
+const MIN = Number(/\bmin="(\d+)"/.exec(tag)[1]);
+const MAX = Number(/\bmax="(\d+)"/.exec(tag)[1]);
+const YEAR = 2026;
+
+function result(raw) {
+  const d = Calc.normalizeInput(Object.assign({ income: '500', housing: { type: 'rent', rent: '8' } }, raw), YEAR);
+  const ctx = { year: YEAR, takeHomeSelf: 0.78, takeHomeSpouse: 0, pensionSelf: 1800000, pensionSpouse: 0, netRateSelf: 0.92, netRateSpouse: 0 };
+  return { input: d, scenarios: [{ rows: Calc.simulate(d, ctx) }, { rows: Calc.simulate(d, ctx, { expenseMul: 1.1 }) }] };
+}
+function rowAt(res, age) { return res.scenarios[0].rows.find((r) => r.age === age); }
+
+test('欄の min・max を index.html から読めて、計算の受ける範囲の中にある', () => {
+  assert.ok(MIN < MAX);
+  assert.equal(Calc.normalizeInput({ retireAge: String(MIN) }).retireAge, MIN);
+  assert.equal(Calc.normalizeInput({ retireAge: String(MAX) }).retireAge, MAX);
+});
+
+test('欄が空なら、印は計算が使う既定の年齢（constants.js の ASSUME.retireAge）の所', () => {
+  const res = result({ age: '35', retireAge: '' });
+  const f = RM.frame(res, 640), r = RM.range(MIN, MAX, 35);
+  const mk = RM.place(res, f, r);
+  assert.equal(mk.age, C.ASSUME.retireAge);
+  assert.equal(mk.at, C.ASSUME.retireAge);
+  assert.equal(mk.x, f.x(C.ASSUME.retireAge));
+  assert.equal(mk.y, f.y(rowAt(res, C.ASSUME.retireAge).balance));
+});
+
+test('印の位置 ＝ 欄の値。横の位置から年齢に戻すと同じ年齢', () => {
+  for (let a = MIN; a <= MAX; a++) {
+    const res = result({ age: '30', retireAge: String(a) });
+    const f = RM.frame(res, 390), r = RM.range(MIN, MAX, 30);
+    const mk = RM.place(res, f, r);
+    assert.equal(mk.at, a);
+    assert.equal(mk.x, f.x(a));
+    assert.equal(mk.y, f.y(rowAt(res, a).balance));
+    assert.equal(RM.ageAtX(mk.x, f), a);
+  }
+});
+
+test('範囲の端: min と max の所に置け、キーで外へは出ない', () => {
+  const r = RM.range(MIN, MAX, 30);
+  assert.deepEqual(r, { min: MIN, max: MAX });
+  assert.equal(RM.clamp(MAX + RM.keyStep('ArrowRight', false), r), MAX);
+  assert.equal(RM.clamp(MAX + RM.keyStep('ArrowRight', true), r), MAX);
+  assert.equal(RM.clamp(MIN + RM.keyStep('ArrowLeft', false), r), MIN);
+  assert.equal(RM.clamp(MIN + 2 + RM.keyStep('ArrowLeft', true), r), MIN);
+  const res = result({ age: '30', retireAge: String(MAX) });
+  const f = RM.frame(res, 640);
+  assert.equal(RM.place(res, f, r).x, f.x(MAX));
+  // 引いて枠の外へ出しても、範囲の端で止まる
+  assert.equal(RM.clamp(RM.ageAtX(f.W + 100, f), r), MAX);
+  assert.equal(RM.clamp(RM.ageAtX(-100, f), r), MIN);
+});
+
+test('今の年齢と同じ: 範囲の左の端が今の年齢になり、印はグラフの左の端', () => {
+  const age = MIN + 10;
+  const r = RM.range(MIN, MAX, age);
+  assert.deepEqual(r, { min: age, max: MAX });
+  const res = result({ age: String(age), retireAge: String(age) });
+  const f = RM.frame(res, 640);
+  const mk = RM.place(res, f, r);
+  assert.equal(mk.at, age);
+  assert.equal(mk.x, f.L);
+  assert.equal(RM.clamp(age + RM.keyStep('ArrowLeft', false), r), age);
+});
+
+test('今の年齢が欄の max を超えたら、印は出さない（動かせる年齢が無い）', () => {
+  assert.equal(RM.range(MIN, MAX, MAX + 1), null);
+  assert.deepEqual(RM.range(MIN, MAX, MAX), { min: MAX, max: MAX });
+});
+
+test('キーの 1 歩: ← → で 1 歳、Shift で 5 歳、ほかのキーは 0', () => {
+  assert.equal(RM.keyStep('ArrowRight', false), 1);
+  assert.equal(RM.keyStep('ArrowLeft', false), -1);
+  assert.equal(RM.keyStep('ArrowRight', true), 5);
+  assert.equal(RM.keyStep('ArrowLeft', true), -5);
+  assert.equal(RM.keyStep('ArrowUp', false), 0);
+  assert.equal(RM.keyStep('Enter', true), 0);
+});
+
+test('印を動かしても計算の関数は同じ: 欄の値を変えて run の前の正規化を通すと、その年齢で働く収入が止まる', () => {
+  const a = 60;
+  const res = result({ age: '40', retireAge: String(a) });
+  assert.equal(res.input.retireAge, a);
+  assert.ok(rowAt(res, a - 1).work > 0);
+  assert.equal(rowAt(res, a).work, 0);
+});
