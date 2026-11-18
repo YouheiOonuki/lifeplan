@@ -17,6 +17,7 @@
   var isNode = typeof module !== 'undefined' && module.exports;
   var C = isNode ? require('./constants.js') : root.Constants;
   var A = C.ASSUME;
+  var R = C.RANGE;   // 入力が受ける範囲（constants.js の 1 か所。Q-432）
   var MAN = 10000;
 
   // ---------- 入力の正規化（保存・共有リンク・ファイル読み込み・計算の前に必ず通す） ----------
@@ -27,7 +28,8 @@
     if (s === '') return null;
     var n = Number(s);
     if (!isFinite(n) || n < 0) return null;
-    return Math.min(Math.round(n * 10) / 10, max || 100000);
+    var p = Math.pow(10, R.manDecimals);
+    return Math.min(Math.round(n * p) / p, max || 100000);
   }
   function int(v, lo, hi, def) {
     if (v === undefined || v === null || String(v).trim() === '') return def;
@@ -46,7 +48,7 @@
   var SCHOOLS = ['pub', 'hi', 'jr', 'pri'];          // すべて公立／高校だけ私立／中学から私立／すべて私立
   var UNIVS = ['none', 'kokuritsu', 'bun', 'ri'];    // 行かない／国立／私立文系／私立理系
   var KUBUN = ['ippan', 'ichitei', 'genekinami'];    // 70歳からの医療費の負担（一般／一定以上所得／現役並み）
-  var MAX_KIDS = 6, MAX_SPECIAL = 20;
+  var MAX_KIDS = R.kids, MAX_SPECIAL = R.specials;
 
   function normalizeInput(raw, thisYear) {
     var r = raw && typeof raw === 'object' ? raw : {};
@@ -54,9 +56,9 @@
     var sp = r.spouse || {}, h = r.housing || {}, pe = r.pension || {}, k = r.kaigo || {};
     var age = int(r.age, 0, 999, null);
     return {
-      age: age === null || age < 15 || age > 99 ? null : age,
+      age: age === null || age < R.age[0] || age > R.age[1] ? null : age,
       income: man(r.income, 100000),
-      spouse: { has: !!sp.has, income: man(sp.income, 100000), age: int(sp.age, 15, 99, null) },
+      spouse: { has: !!sp.has, income: man(sp.income, 100000), age: int(sp.age, R.spouseAge[0], R.spouseAge[1], null) },
       kids: (Array.isArray(r.kids) ? r.kids : []).slice(0, MAX_KIDS).map(function (c) {
         c = c && typeof c === 'object' ? c : {};
         return {
@@ -68,21 +70,21 @@
       }).filter(function (c) { return c.birth !== null; }),
       housing: {
         type: pick(h.type, ['rent', 'own'], 'rent'),
-        rent: man(h.rent, 1000), loan: man(h.loan, 1000), loanYears: int(h.loanYears, 0, 50, 0),
-        ownCost: man(h.ownCost, 10000), renewal: pct(h.renewal, 0, 12, A.renewalMonths),
+        rent: man(h.rent, 1000), loan: man(h.loan, 1000), loanYears: int(h.loanYears, R.loanYears[0], R.loanYears[1], 0),
+        ownCost: man(h.ownCost, 10000), renewal: pct(h.renewal, R.renewal[0], R.renewal[1], A.renewalMonths),
       },
-      retireAge: int(r.retireAge, 40, 80, A.retireAge),
+      retireAge: int(r.retireAge, R.retireAge[0], R.retireAge[1], A.retireAge),
       severance: man(r.severance, 100000),
       pension: {
         self: man(pe.self, 10000), spouse: man(pe.spouse, 10000),
-        start: int(pe.start, 60, 75, A.pensionStart),
-        joinAge: int(pe.joinAge, 15, 70, A.joinAge),
-        netRate: pct(pe.netRate, 0, 100, null),
+        start: int(pe.start, R.pensionStart[0], R.pensionStart[1], A.pensionStart),
+        joinAge: int(pe.joinAge, R.joinAge[0], R.joinAge[1], A.joinAge),
+        netRate: pct(pe.netRate, R.netRate[0], R.netRate[1], null),
       },
       living: man(r.living, 1000),          // 基本の生活費（月）。空欄なら家計調査から
       medical: man(r.medical, 10000),       // 医療費の自己負担（年、世帯）。空欄なら国民医療費から
       kubun: pick(r.kubun, KUBUN, 'ippan'),
-      kaigo: { amount: man(k.amount, 10000), from: int(k.from, 40, 110, 75) },
+      kaigo: { amount: man(k.amount, 10000), from: int(k.from, R.kaigoFrom[0], R.kaigoFrom[1], 75) },
       car: man(r.car, 10000),
       insurance: man(r.insurance, 10000),
       specials: (Array.isArray(r.specials) ? r.specials : []).slice(0, MAX_SPECIAL).map(function (s) {
@@ -90,10 +92,10 @@
         return { year: int(s.year, y, y + 90, null), amount: man(s.amount, 100000) };
       }).filter(function (s) { return s.year !== null && s.amount !== null; }),
       savings: man(r.savings, 1000000),
-      rate: pct(r.rate, -20, 20, A.rate),
-      inflation: pct(r.inflation, -10, 20, A.inflation),
-      raise: pct(r.raise, -10, 20, A.raise),
-      endAge: int(r.endAge, 60, 100, A.endAge),
+      rate: pct(r.rate, R.rate[0], R.rate[1], A.rate),
+      inflation: pct(r.inflation, R.inflation[0], R.inflation[1], A.inflation),
+      raise: pct(r.raise, R.raise[0], R.raise[1], A.raise),
+      endAge: int(r.endAge, R.endAge[0], R.endAge[1], A.endAge),
     };
   }
 
