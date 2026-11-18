@@ -154,8 +154,8 @@ details.card.opt[open] > summary { border-bottom: 1px solid var(--border); margi
 
 /* 固定バー（SCREEN.md 0 章の 3・D59・D413）: 上端に 1 行、高さ 44px。下端は AdSense のアンカー広告が使う。
    読み込み時は hidden（screen.js が出し入れする） */
-.fixed-bar { position: fixed; top: 0; bottom: auto; left: 0; right: 0; z-index: 50; height: 44px; padding: 0; border-top: 0; border-bottom: 2px solid var(--accent); }
-.fixed-bar a { display: block; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 var(--sp-4); height: 42px; line-height: 42px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; text-decoration: none; }
+.fixed-bar { position: fixed; top: 0; bottom: auto; left: 0; right: 0; z-index: 50; height: 44px; padding: 0; border-top: 0; border-bottom: 0; box-shadow: inset 0 -2px 0 var(--accent); }   /* 下の線は影で描き、リンクを 44px のまま入れる（shaho-check Q-449 と同じ形。yorozu-plans QUEUE Q-533） */
+.fixed-bar a { display: block; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 var(--sp-4); height: 44px; line-height: 44px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; text-decoration: none; }
 .fixed-bar a:focus-visible { outline-offset: -4px; }   /* 共通の輪を内側に（上端で切れないように） */
 
 /* PC（960px 以上）: 入力を左・結果を右の 2 列（D371）。1 画面目に両方入る。結果が常に見えるので固定バーは出さない */
