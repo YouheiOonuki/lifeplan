@@ -140,6 +140,7 @@ details.rels > summary { cursor: pointer; padding: var(--sp-2) 0; list-style: no
 details.rels > summary::-webkit-details-marker { display: none; }
 details.rels > summary::before { content: '▸'; margin-right: var(--sp-2); }
 details.rels[open] > summary::before { content: '▾'; }
+details.rels + details.rels { margin-top: var(--sp-2); }   /* 閉じて並ぶ 2 つの summary の間を 8 px（Q-590） */
 
 /* くわしく入れる（1 グループ 1 つの details）。summary の .opt-state に今の状態を出す（screen.js の detailsSummary） */
 details.card.opt { padding: 0 var(--sp-4); margin-bottom: var(--sp-3); }
