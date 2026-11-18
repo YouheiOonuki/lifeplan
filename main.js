@@ -210,12 +210,12 @@
     var box = $('chart'), ri = $('retire-age');
     var f = RM.frame(res, box.clientWidth);
     var r = RM.range(ri.min, ri.max, res.input.age);
-    var mk = r ? RM.place(res, f, r) : null;
+    var mk = RM.place(res, f, r);   // 退職の年齢が図の外（今の年齢より前など）なら null。印を描かず、Tab にも止めない
     var tmp = document.createElement('div');
     tmp.innerHTML = chartSvg(res, f, mk);
     var old = box.querySelector('svg');
     if (old) box.replaceChild(tmp.firstChild, old); else box.insertBefore(tmp.firstChild, box.firstChild);
-    markView = r ? { f: f, r: r } : null;
+    markView = mk ? { f: f, r: r } : null;
     var btn = $('retire-mark');
     btn.hidden = !mk;
     if (!mk) return;
