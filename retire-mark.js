@@ -1,5 +1,5 @@
 // ===========================
-// ライフプラン 簡易シミュレーション — 折れ線の目盛りと、折れ線の上の印（退職の年齢 Q-429・年金を受け取り始める年齢 Q-579）の位置・動かせる範囲（画面から切り離した純粋関数）
+// ライフプラン 簡易シミュレーション — 折れ線の目盛りと、折れ線の上の印（退職の年齢 Q-429・年金を受け取り始める年齢 Q-579）の位置・動かせる範囲・そばの年齢の字（Q-591）（画面から切り離した純粋関数）
 // 計算はしない。印の年齢は calc.js の run が返す input.retireAge・input.pension.start（欄が空なら constants.js の ASSUME の値）をそのまま使う
 // ブラウザでは window.RetireMark、Node（テスト）では module.exports で使う
 // ===========================
@@ -82,7 +82,21 @@
     return { top: top + d, bottom: bottom + d };
   }
 
-  var RetireMark = { frame: frame, ageAtX: ageAtX, range: range, clamp: clamp, keyStep: keyStep, place: place, near: near, stack: stack };
+  /** 印のそばの年齢の字（Q-591）。「65歳」の形（横の目盛りの字と同じ書き方） */
+  function ageText(age) { return age + '歳'; }
+
+  /**
+   * 印のそばの字を、左右の端で図の中へ寄せる量（px。Q-591）。cx = 印の中心、half = 字の幅の半分。
+   * 字を [lo, hi] の中に収める（lo = 縦の軸〈目盛りの字の右〉、hi = 図の箱の右端）。収まれば 0。字が幅より広ければ左を守る
+   */
+  function labelShift(cx, half, lo, hi) {
+    var d = 0;
+    if (cx + half > hi) d = hi - (cx + half);
+    if (cx - half + d < lo) d = lo - (cx - half);
+    return d;
+  }
+
+  var RetireMark = { frame: frame, ageAtX: ageAtX, range: range, clamp: clamp, keyStep: keyStep, place: place, near: near, stack: stack, ageText: ageText, labelShift: labelShift };
   if (typeof module !== 'undefined' && module.exports) module.exports = RetireMark;
   else root.RetireMark = RetireMark;
 })(this);
