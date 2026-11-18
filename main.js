@@ -217,9 +217,8 @@
         var btn = this.btn, x = f.x(Math.min(at, f.a1));
         btn.style.left = (x / f.W * 100) + '%';
         btn.dataset.age = at;
-        btn.dataset.side = x > f.W * 0.7 ? 'r' : x < f.W * 0.3 ? 'l' : 'c';
-        $('retire-mark-num').textContent = age;
         btn.setAttribute('aria-label', '退職の年齢 ' + age + ' 歳');
+        ageLabel(this, age, x, f);
       },
     },
     pension: {
@@ -231,9 +230,24 @@
         btn.style.left = (x / f.W * 100) + '%';
         btn.dataset.age = at;
         btn.setAttribute('aria-label', this.name + ' ' + age + ' 歳');
+        ageLabel(this, age, x, f);
       },
     },
   };
+  // 印のそばの年齢の字（Q-591）: 「65歳」。数は印が今 指している年齢（欄の値、空なら計算が使っている年齢）。aria-valuetext も同じ字。
+  // 図の左右の端では、字を図の中へ寄せる（左は目盛りの字に掛からない縦の軸まで、右は図の箱の右端まで）
+  function scaleOf(f) { return $('chart').querySelector('svg').getBoundingClientRect().width / f.W; }
+  function ageLabel(m, age, x, f) {
+    var lab = m.btn.querySelector('.retire-mark-label'), s = scaleOf(f), text = RM.ageText(age);
+    lab.textContent = text;
+    m.btn.setAttribute('aria-valuetext', text);
+    lab.style.setProperty('--dx', RM.labelShift(x * s, lab.offsetWidth / 2, f.L * s, f.W * s) + 'px');
+  }
+  // 字は印の上。上に置くと図の箱の上へ出る時だけ、印の下に
+  function labelSide(m, y, f) {
+    var s = scaleOf(f), tap = m.btn.offsetHeight, lab = m.btn.querySelector('.retire-mark-label');
+    m.btn.dataset.vside = Math.min(f.H - f.B, Math.max(f.T, y)) * s - (tap / 2 - 4) - lab.offsetHeight < 0 ? 'b' : 't';
+  }
   function topOf(y, f) { return (Math.min(f.H - f.B, Math.max(f.T, y)) / f.H * 100) + '%'; }   // 枠を止めている間に線が枠を出ても、印は枠の中
   function renderChart(res) {
     var box = $('chart'), mR = marks.retire, mP = marks.pension;
@@ -247,37 +261,43 @@
     tmp.innerHTML = chartSvg(res, f, mk);
     var old = box.querySelector('svg');
     if (old) box.replaceChild(tmp.firstChild, old); else box.insertBefore(tmp.firstChild, box.firstChild);
+    // 印の字の大きさ ＝ 目盛りの字の大きさ × 画面の倍率（12 px 未満にしない。Q-591）
+    box.style.setProperty('--mark-fs', Math.max(12, parseFloat(getComputedStyle(box.querySelector('svg .tick')).fontSize) * scaleOf(f)) + 'px');
     mR.view = mk ? { f: f, r: r } : null;
     mP.view = pk ? { f: f, r: pr } : null;
     mR.btn.hidden = !mk;
     mP.btn.hidden = !pk;
     if (mk) {
       mR.btn.style.top = topOf(mk.y, f);
-      mR.btn.dataset.vside = mk.y < f.H * 0.45 ? 'b' : 't';   // 年齢の字は、上が詰まっていれば印の下に
       mR.show(mk.at, mk.age, f);
+      labelSide(mR, mk.y, f);
     }
     if (pk) {
       mP.btn.style.top = topOf(pk.y, f);
       mP.show(pk.at, pk.age, f);
+      labelSide(mP, pk.y, f);
     }
     if (mk && pk) apart(mk, pk, f);
   }
-  // 2 つの印の押す所（と退職の印の年齢の字）が GAP px 未満に寄るなら、退職の印を線の上・年金の印を線の下に離して置く（Q-579）
+  // 2 つの印の押す所と年齢の字のどれかが GAP px 未満に寄るなら、退職の印を線の上（字は上）・年金の印を線の下（字は下）に離して置く（Q-579・Q-591）
   function apart(mk, pk, f) {
-    var bR = marks.retire.btn, bP = marks.pension.btn;
-    var s = $('chart').querySelector('svg').getBoundingClientRect().width / f.W, tap = bR.offsetWidth;
-    var hit = RM.near(mk, pk, s, tap, GAP);
-    var label = bR.querySelector('.retire-mark-label');
-    if (!hit) {
-      var a = label.getBoundingClientRect(), b = bP.getBoundingClientRect();
-      hit = a.left < b.right + GAP && b.left < a.right + GAP && a.top < b.bottom + GAP && b.top < a.bottom + GAP;
+    var bR = marks.retire.btn, bP = marks.pension.btn, svg = $('chart').querySelector('svg');
+    var s = scaleOf(f), tap = bR.offsetWidth;
+    var lR = bR.querySelector('.retire-mark-label'), lP = bP.querySelector('.retire-mark-label');
+    function close(p, q) {
+      var a = p.getBoundingClientRect(), b = q.getBoundingClientRect();
+      return a.left < b.right + GAP && b.left < a.right + GAP && a.top < b.bottom + GAP && b.top < a.bottom + GAP;
     }
+    var hit = RM.near(mk, pk, s, tap, GAP) || [bR, lR].some(function (p) { return [bP, lP].some(function (q) { return close(p, q); }); });
     if (!hit) return;
-    // 退職の印の年齢の字（印の上）と年金の印を、図の箱（svg）の外へ出さない
-    var st = RM.stack(mk, pk, s, tap, GAP, { top: (tap / 2 - 4 + label.offsetHeight) / s, bottom: f.H - tap / 2 / s });
+    // 退職の印の字（印の上）を図の箱（svg）の上へ出さず、年金の印の字（印の下）を下の目盛りの字に掛けない
+    var sr = svg.getBoundingClientRect(), xt = svg.querySelector('text.tick[text-anchor="middle"]');
+    var floor = xt ? (xt.getBoundingClientRect().top - sr.top) / s : f.H;
+    var st = RM.stack(mk, pk, s, tap, GAP, { top: (tap / 2 - 4 + lR.offsetHeight) / s, bottom: floor - (tap / 2 - 4 + lP.offsetHeight + 1) / s });
     bR.style.top = (st.top / f.H * 100) + '%';
     bR.dataset.vside = 't';
     bP.style.top = (st.bottom / f.H * 100) + '%';
+    bP.dataset.vside = 'b';
   }
   function runNow() {
     clearTimeout(timer);

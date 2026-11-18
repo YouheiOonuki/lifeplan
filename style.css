@@ -212,13 +212,12 @@ fieldset.kid legend { font-weight: 700; padding: 0 var(--sp-1); }
 .retire-mark-dot { width: 1.25rem; height: 1.25rem; border-radius: 50%; background: var(--card); border: 3px solid var(--accent); }
 .retire-mark:hover .retire-mark-dot, .retire-mark:active .retire-mark-dot { background: var(--accent); }
 .retire-mark-label {
-  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%); white-space: nowrap;
-  font-size: var(--fs-s); font-weight: 700; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 var(--sp-1);
+  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(calc(-50% + var(--dx, 0px))); white-space: nowrap;
+  font-size: var(--mark-fs); font-weight: 700; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 var(--sp-1);
 }
+/* 年齢の字（Q-591）: 大きさは目盛りと同じ（main.js が --mark-fs に）。図の端では --dx だけ中へ寄せる。下に置くのは、年金の印を線の下に置いた時と、上に置くと図の外へ出る時 */
 .retire-mark[data-vside="b"] .retire-mark-label { bottom: auto; top: calc(100% - 4px); }
-.retire-mark[data-side="l"] .retire-mark-label { left: 0; transform: none; }
-.retire-mark[data-side="r"] .retire-mark-label { left: auto; right: 0; transform: none; }
-/* 年金を受け取り始める年齢の印（Q-579）: 当たりと動きは退職の印と同じ箱。形はひし形（退職の丸と形で見分ける）。字は置かない */
+/* 年金を受け取り始める年齢の印（Q-579）: 当たりと動きは退職の印と同じ箱。形はひし形（退職の丸と形で見分ける）。字は年齢だけ（Q-591） */
 .pension-mark-dot { width: 1rem; height: 1rem; transform: rotate(45deg); background: var(--card); border: 3px solid var(--accent); }
 .pension-mark:hover .pension-mark-dot, .pension-mark:active .pension-mark-dot { background: var(--accent); }
 .legend { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); font-size: var(--fs-s); color: var(--muted); }

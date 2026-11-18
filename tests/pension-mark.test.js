@@ -111,12 +111,54 @@ test('寄るかどうか: 同じ点は寄る。縦か横に 52 px 以上離れ�
   assert.equal(st.bottom - st.top, TAP + GAP + 1);
 });
 
-test('画面: 年金の印は button・紙に出さない・字を足さない（名前は欄のラベルから読む）・キーは ← →', () => {
+test('画面: 年金の印は button・紙に出さない・字は年齢だけ（名前は欄のラベルから読む）・キーは ← →', () => {
   const tag = /<button[^>]*id="pension-mark"[^>]*>([\s\S]*?)<\/button>/.exec(html);
   assert.ok(tag, 'button#pension-mark が無い');
   assert.match(tag[0], /class="[^"]*\bno-print\b/);
   assert.match(tag[0], /aria-keyshortcuts="ArrowLeft ArrowRight"/);
-  assert.equal(tag[1].replace(/<[^>]+>/g, '').trim(), '', '印の中に字を置かない');
+  assert.equal(tag[1].replace(/<[^>]+>/g, '').trim(), '', '印の中に書いておく字は無い（年齢の字は main.js が入れる。Q-591）');
+  assert.match(tag[1], /<span class="retire-mark-label" aria-hidden="true"><\/span>/, '年齢の字の置き場');
   assert.match(mainJs, /label\[for="p-start"\]/);
   assert.doesNotMatch(mainJs, /['"]年金を受け取り始める年齢/, '名前を main.js の字に写さない（欄のラベルの字から）');
+});
+
+// Q-591: 2 つの印のそばに、その印が今 指している年齢を「65歳」の形で出す（数は欄の値、空なら計算が使っている年齢）
+test('印の字 ＝ 欄の値（60・65・70・75 と空 × 2 つの印）。aria-valuetext も同じ字', () => {
+  for (const s of [String(P.min), '65', '70', String(P.max), '']) {
+    const res = result({ age: '40', retireAge: s, pension: { start: s } });
+    for (const w of [390, 1280]) {
+      const f = RM.frame(res, w);
+      const pk = pensionPlace(res, f);
+      const mk = RM.place(res, f, RM.range(R.min, R.max, 40));
+      assert.equal(RM.ageText(pk.age), (s === '' ? C.ASSUME.pensionStart : Number(s)) + '歳', '年金・欄「' + s + '」');
+      assert.equal(RM.ageText(mk.age), (s === '' ? C.ASSUME.retireAge : Number(s)) + '歳', '退職・欄「' + s + '」');
+    }
+  }
+  // 2 つの印の字と aria-valuetext は、同じ ageText から（main.js の ageLabel の 1 か所）
+  assert.match(mainJs, /lab\.textContent = text;\s*m\.btn\.setAttribute\('aria-valuetext', text\);/);
+  assert.equal((mainJs.match(/ageLabel\(this, age, x, f\)/g) || []).length, 2, '2 つの印の show が字を出す（引いている間・キーで動かした時も同じ道）');
+});
+
+test('印の字を図の端で中へ寄せる: 収まれば 0、左は縦の軸より右、右は図の箱の右端より左', () => {
+  assert.equal(RM.labelShift(200, 20, 58, 382), 0);
+  assert.equal(RM.labelShift(58, 20, 58, 382), 20);     // 左の端（今の年齢）: 字の左を縦の軸に
+  assert.equal(RM.labelShift(370, 20, 58, 382), -8);    // 右の端: 字の右を図の箱の右端に
+  assert.equal(RM.labelShift(100, 200, 58, 382), 158);  // 字が幅より広ければ左を守る
+  // 390・1,280 幅の図で、4 つの年齢の字（「60歳」〜「100歳」の幅 40 px として）が図の中に収まる
+  for (const w of [390, 1280]) {
+    const res = result({ age: '40' });
+    const f = RM.frame(res, w);
+    for (const a of [f.a0, f.a0 + 1, f.a1 - 1, f.a1]) {
+      const cx = f.x(a), d = RM.labelShift(cx, 20, f.L, f.W);
+      assert.ok(cx - 20 + d >= f.L - 1e-9 && cx + 20 + d <= f.W + 1e-9, w + 'px・' + a + ' 歳');
+    }
+  }
+});
+
+test('紙に出さない: 年齢の字は印の button の中（no-print）', () => {
+  for (const id of ['retire-mark', 'pension-mark']) {
+    const tag = new RegExp('<button[^>]*id="' + id + '"[^>]*>([\\s\\S]*?)<\\/button>').exec(html);
+    assert.match(tag[0], /class="[^"]*\bno-print\b/);
+    assert.match(tag[1], /class="retire-mark-label"/, id);
+  }
 });
