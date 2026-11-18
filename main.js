@@ -28,6 +28,7 @@
   }
 
   var Calc = window.Calc;
+  var RANGE = window.Constants.RANGE;   // 入力が受ける範囲（constants.js の 1 か所。Q-432）
   var THIS_YEAR = new Date().getFullYear();
   var $ = function (id) { return document.getElementById(id); };
   var deps = {
@@ -43,7 +44,7 @@
   // 子の生まれた年: 「2020、2023」「2020,2023」「2020 2023」を受け付ける
   function parseKids(text) {
     return String(text || '').split(/[、,，\s]+/).map(function (s) { return s.replace(/[^\d]/g, ''); })
-      .filter(function (s) { return /^\d{4}$/.test(s); }).slice(0, 6).map(Number);
+      .filter(function (s) { return /^\d{4}$/.test(s); }).slice(0, RANGE.kids).map(Number);
   }
 
   var kidOpts = [];       // 子ごとの進路（生まれた年の並びと同じ順）
@@ -77,7 +78,7 @@
     setRadio('spouse', sp.has ? 'yes' : 'no');
     $('spouse-income').value = s(sp.income); $('spouse-age').value = s(sp.age);
     $('kids').value = s(r.kidsText !== undefined ? r.kidsText : (Array.isArray(r.kids) ? r.kids.map(function (c) { return c && c.birth; }).join('、') : ''), 60);
-    kidOpts = (Array.isArray(r.kids) ? r.kids : []).slice(0, 6).map(function (c) {
+    kidOpts = (Array.isArray(r.kids) ? r.kids : []).slice(0, RANGE.kids).map(function (c) {
       c = c && typeof c === 'object' ? c : {};
       return { school: ['pub', 'hi', 'jr', 'pri'].indexOf(c.school) >= 0 ? c.school : 'pub', univ: ['none', 'kokuritsu', 'bun', 'ri'].indexOf(c.univ) >= 0 ? c.univ : 'none', away: !!c.away };
     });
@@ -91,9 +92,9 @@
     $('kubun').value = ['ippan', 'ichitei', 'genekinami'].indexOf(r.kubun) >= 0 ? r.kubun : 'ippan';
     $('kaigo').value = s(k.amount); $('kaigo-from').value = s(k.from);
     $('car').value = s(r.car); $('insurance').value = s(r.insurance);
-    specials = (Array.isArray(r.specials) ? r.specials : []).slice(0, 20).map(function (x) { x = x || {}; return { year: s(x.year, 4), amount: s(x.amount) }; });
+    specials = (Array.isArray(r.specials) ? r.specials : []).slice(0, RANGE.specials).map(function (x) { x = x || {}; return { year: s(x.year, 4), amount: s(x.amount) }; });
     $('savings').value = s(r.savings); $('rate').value = s(r.rate); $('inflation').value = s(r.inflation); $('raise').value = s(r.raise);
-    $('end-age').value = ['80', '85', '90', '95', '100'].indexOf(String(r.endAge)) >= 0 ? String(r.endAge) : '100';
+    $('end-age').value = [].some.call($('end-age').options, function (o) { return o.value === String(r.endAge); }) ? String(r.endAge) : '100';   // 選べる年齢は index.html の選択肢の 1 か所
     renderKidRows(); renderSpecials(); toggles();
   }
 
@@ -210,12 +211,12 @@
     var box = $('chart'), ri = $('retire-age');
     var f = RM.frame(res, box.clientWidth);
     var r = RM.range(ri.min, ri.max, res.input.age);
-    var mk = r ? RM.place(res, f, r) : null;
+    var mk = RM.place(res, f, r);   // 退職の年齢が図の外（今の年齢より前など）なら null。印を描かず、Tab にも止めない
     var tmp = document.createElement('div');
     tmp.innerHTML = chartSvg(res, f, mk);
     var old = box.querySelector('svg');
     if (old) box.replaceChild(tmp.firstChild, old); else box.insertBefore(tmp.firstChild, box.firstChild);
-    markView = r ? { f: f, r: r } : null;
+    markView = mk ? { f: f, r: r } : null;
     var btn = $('retire-mark');
     btn.hidden = !mk;
     if (!mk) return;

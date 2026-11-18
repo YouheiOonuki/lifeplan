@@ -77,8 +77,35 @@ test('今の年齢と同じ: 範囲の左の端が今の年齢になり、印は
   assert.equal(RM.clamp(age + RM.keyStep('ArrowLeft', false), r), age);
 });
 
+test('退職の年齢が図の左端（今の年齢）より前なら、印は出さない。欄の値は変わらない（Q-432）', () => {
+  for (const age of [66, 70, 80]) {
+    // 欄が空（既定 65 歳）でも、欄に今の年齢より前の値が入っていても
+    for (const retire of ['', String(MIN)]) {
+      const res = result({ age: String(age), retireAge: retire });
+      const f = RM.frame(res, 640), r = RM.range(MIN, MAX, age);
+      assert.ok(res.input.retireAge < f.a0);
+      assert.equal(RM.place(res, f, r), null, age + ' 歳・欄「' + retire + '」');
+    }
+    // 欄を図の範囲の中に直せば、印が出る
+    const res = result({ age: String(age), retireAge: String(age) });
+    const f = RM.frame(res, 640), r = RM.range(MIN, MAX, age);
+    const mk = RM.place(res, f, r);
+    assert.equal(mk.at, age);
+    assert.equal(mk.x, f.L);
+  }
+});
+
+test('退職の年齢が図の右端（何歳まで見るか）より後なら、印は出さない', () => {
+  const res = result({ age: '30', retireAge: String(MAX), endAge: String(MAX - 1) });
+  const f = RM.frame(res, 640);
+  assert.ok(f.a1 < MAX);
+  assert.equal(RM.place(res, f, RM.range(MIN, MAX, 30)), null);
+});
+
 test('今の年齢が欄の max を超えたら、印は出さない（動かせる年齢が無い）', () => {
   assert.equal(RM.range(MIN, MAX, MAX + 1), null);
+  const res = result({ age: String(MAX + 1), retireAge: String(MAX) });
+  assert.equal(RM.place(res, RM.frame(res, 640), RM.range(MIN, MAX, MAX + 1)), null);
   assert.deepEqual(RM.range(MIN, MAX, MAX), { min: MAX, max: MAX });
 });
 

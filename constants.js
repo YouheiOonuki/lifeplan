@@ -154,8 +154,31 @@
     raise: 0,             // 昇給率（%）
     endAge: 100,          // 何歳まで見るか
   };
+  // 欄ごとの入力が受ける範囲（年齢・年数・割合は [下限, 上限]、件数は上限）。欄ごとの範囲の数はここにだけ書く（Q-432）。
+  // calc.js の normalizeInput がこの数で丸め、main.js は件数をここから読む。
+  // index.html の欄の min・max・step と、欄の下の案内の文の数は tests/ranges.test.js でこの表と突き合わせる
+  var RANGE = {
+    age: [15, 99],           // あなたの年齢（欄 age）
+    spouseAge: [15, 99],     // 配偶者の年齢（欄 spouse-age）
+    loanYears: [0, 50],      // ローンの残り年数（欄 loan-years）
+    renewal: [0, 12],        // 更新料（家賃の何か月分。欄 renewal）
+    retireAge: [40, 80],     // 退職の年齢（欄 retire-age。折れ線の印もこの範囲で動く）
+    joinAge: [15, 70],       // 厚生年金に入った年齢（欄 join-age）
+    pensionStart: [60, 75],  // 年金を受け取り始める年齢（欄 p-start）
+    netRate: [0, 100],       // 年金の手取りの率（%。欄 p-net）
+    kaigoFrom: [40, 110],    // 介護費を数え始める年齢（欄 kaigo-from）
+    endAge: [60, 100],       // 何歳まで見るか（欄 end-age は選択肢。選択肢はこの範囲の中、いちばん上が上限）
+    rate: [-20, 20],         // 運用の利回り（%。欄 rate）
+    inflation: [-10, 20],    // 物価の上がり方（%。欄 inflation）
+    raise: [-10, 20],        // 昇給率（%。欄 raise）
+    kids: 6,                 // 子の人数
+    specials: 20,            // 特別費の件数
+    manDecimals: 1,          // 金額（万円）の小数の桁。金額の欄の step は 0.1
+  };
+
   // 値の行だけを列挙できるようにする（tests は Object.entries で全行の source・url・checked を確かめる）
   Object.defineProperty(C, 'ASSUME', { value: ASSUME, enumerable: false });
+  Object.defineProperty(C, 'RANGE', { value: RANGE, enumerable: false });
   Object.defineProperty(C, 'CHECKED', { value: CHECKED, enumerable: false });
   Object.defineProperty(C, 'STALE_MONTHS', { value: 12, enumerable: false });
 

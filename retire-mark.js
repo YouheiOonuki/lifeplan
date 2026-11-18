@@ -46,16 +46,18 @@
 
   /**
    * 印の位置。印は「入力どおり」の線の上の、退職の年齢の年末の残高に置く。
-   * age は計算が使った退職の年齢（res.input.retireAge）。範囲の外なら範囲の端に置く
+   * age は計算が使った退職の年齢（res.input.retireAge）。
+   * 図の範囲（左端 = 今の年齢、右端 = 何歳まで見るか）か動かせる範囲の外なら null（印を出さない）。
+   * 端に寄せて描くと、図が欄と違う年齢を見せるため（Q-432）。欄の値は変えない
    */
   function place(res, f, r) {
     var age = res.input.retireAge;
-    var at = clamp(age, r);
+    if (!r || age < f.a0 || age > f.a1 || age < r.min || age > r.max) return null;
     var rows0 = res.scenarios[0].rows;
     var row = null;
-    for (var i = 0; i < rows0.length; i++) if (rows0[i].age === at) { row = rows0[i]; break; }
-    if (!row) row = rows0[rows0.length - 1];
-    return { age: age, at: at, x: f.x(Math.min(at, f.a1)), y: f.y(row.balance) };
+    for (var i = 0; i < rows0.length; i++) if (rows0[i].age === age) { row = rows0[i]; break; }
+    if (!row) return null;
+    return { age: age, at: age, x: f.x(age), y: f.y(row.balance) };
   }
 
   var RetireMark = { frame: frame, ageAtX: ageAtX, range: range, clamp: clamp, keyStep: keyStep, place: place };
