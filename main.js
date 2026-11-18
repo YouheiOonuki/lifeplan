@@ -202,35 +202,82 @@
     return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
   }
 
-  // --- 退職の年齢の印（Q-429）: 折れ線の上の印を左右に引く・← → で、退職の年齢の欄を 1 歳ずつ変える ---
+  // --- 折れ線の上の印: 退職の年齢（Q-429。丸、← → で 1 歳・Shift と ← → で 5 歳）と、年金を受け取り始める年齢（Q-579。ひし形、← → で 1 歳） ---
+  // 印を左右に引く・← → で、その欄を 1 歳ずつ変え、結果は今と同じ道（update）で出し直す。
   // 範囲は欄の min・max（属性から取る）と今の年齢。欄が空なら計算が使っている既定の年齢に印を出し、動かした時にはじめて欄に入れる
   var RM = window.RetireMark;
-  var markView = null;   // 直近の { f: 枠と目盛り, r: 動かせる範囲 }（引くときに使う）
+  var GAP = 8;           // 2 つの印の押す所の間（px）。これより寄る年齢では、退職の印を線の上、年金の印を線の下に置く（Q-579）
   var slow = false;      // 1 回の計算と描き直しが 50 ms を超えたら、引いている間は計算せず、指を離した時だけ計算する
+  var hold = null;       // 年金の印にフォーカスが在る間と引いている間は、この枠と目盛りのまま描く（軸の端を変えない。Q-579）
+  var marks = {
+    retire: {
+      btn: $('retire-mark'), input: $('retire-age'), shift: true, view: null,   // view = 直近の { f: 枠と目盛り, r: 動かせる範囲 }（引くときに使う）
+      age: function (d) { return d.retireAge; },
+      show: function (at, age, f) {
+        var btn = this.btn, x = f.x(Math.min(at, f.a1));
+        btn.style.left = (x / f.W * 100) + '%';
+        btn.dataset.age = at;
+        btn.dataset.side = x > f.W * 0.7 ? 'r' : x < f.W * 0.3 ? 'l' : 'c';
+        $('retire-mark-num').textContent = age;
+        btn.setAttribute('aria-label', '退職の年齢 ' + age + ' 歳');
+      },
+    },
+    pension: {
+      btn: $('pension-mark'), input: $('p-start'), shift: false, view: null,
+      name: document.querySelector('label[for="p-start"]').textContent.trim(),   // 印の名前は欄のラベルの字から
+      age: function (d) { return d.pension.start; },
+      show: function (at, age, f) {
+        var btn = this.btn, x = f.x(Math.min(at, f.a1));
+        btn.style.left = (x / f.W * 100) + '%';
+        btn.dataset.age = at;
+        btn.setAttribute('aria-label', this.name + ' ' + age + ' 歳');
+      },
+    },
+  };
+  function topOf(y, f) { return (Math.min(f.H - f.B, Math.max(f.T, y)) / f.H * 100) + '%'; }   // 枠を止めている間に線が枠を出ても、印は枠の中
   function renderChart(res) {
-    var box = $('chart'), ri = $('retire-age');
-    var f = RM.frame(res, box.clientWidth);
-    var r = RM.range(ri.min, ri.max, res.input.age);
+    var box = $('chart'), mR = marks.retire, mP = marks.pension;
+    var f = hold || RM.frame(res, box.clientWidth);
+    var r = RM.range(mR.input.min, mR.input.max, res.input.age);
     var mk = RM.place(res, f, r);   // 退職の年齢が図の外（今の年齢より前など）なら null。印を描かず、Tab にも止めない
+    // 年金の印は、図の右端（何歳まで見るか）より先へは動かさない（動かすと印が消え、フォーカスが外れる）
+    var pr = RM.range(mP.input.min, Math.min(Number(mP.input.max), f.a1), res.input.age);
+    var pk = RM.place(res, f, pr, res.input.pension.start);
     var tmp = document.createElement('div');
     tmp.innerHTML = chartSvg(res, f, mk);
     var old = box.querySelector('svg');
     if (old) box.replaceChild(tmp.firstChild, old); else box.insertBefore(tmp.firstChild, box.firstChild);
-    markView = mk ? { f: f, r: r } : null;
-    var btn = $('retire-mark');
-    btn.hidden = !mk;
-    if (!mk) return;
-    btn.style.top = (mk.y / f.H * 100) + '%';
-    btn.dataset.vside = mk.y < f.H * 0.45 ? 'b' : 't';   // 年齢の字は、上が詰まっていれば印の下に
-    showMark(mk.at, mk.age, f);
+    mR.view = mk ? { f: f, r: r } : null;
+    mP.view = pk ? { f: f, r: pr } : null;
+    mR.btn.hidden = !mk;
+    mP.btn.hidden = !pk;
+    if (mk) {
+      mR.btn.style.top = topOf(mk.y, f);
+      mR.btn.dataset.vside = mk.y < f.H * 0.45 ? 'b' : 't';   // 年齢の字は、上が詰まっていれば印の下に
+      mR.show(mk.at, mk.age, f);
+    }
+    if (pk) {
+      mP.btn.style.top = topOf(pk.y, f);
+      mP.show(pk.at, pk.age, f);
+    }
+    if (mk && pk) apart(mk, pk, f);
   }
-  function showMark(at, age, f) {
-    var btn = $('retire-mark'), x = f.x(Math.min(at, f.a1));
-    btn.style.left = (x / f.W * 100) + '%';
-    btn.dataset.age = at;
-    btn.dataset.side = x > f.W * 0.7 ? 'r' : x < f.W * 0.3 ? 'l' : 'c';
-    $('retire-mark-num').textContent = age;
-    btn.setAttribute('aria-label', '退職の年齢 ' + age + ' 歳');
+  // 2 つの印の押す所（と退職の印の年齢の字）が GAP px 未満に寄るなら、退職の印を線の上・年金の印を線の下に離して置く（Q-579）
+  function apart(mk, pk, f) {
+    var bR = marks.retire.btn, bP = marks.pension.btn;
+    var s = $('chart').querySelector('svg').getBoundingClientRect().width / f.W, tap = bR.offsetWidth;
+    var hit = RM.near(mk, pk, s, tap, GAP);
+    var label = bR.querySelector('.retire-mark-label');
+    if (!hit) {
+      var a = label.getBoundingClientRect(), b = bP.getBoundingClientRect();
+      hit = a.left < b.right + GAP && b.left < a.right + GAP && a.top < b.bottom + GAP && b.top < a.bottom + GAP;
+    }
+    if (!hit) return;
+    // 退職の印の年齢の字（印の上）と年金の印を、図の箱（svg）の外へ出さない
+    var st = RM.stack(mk, pk, s, tap, GAP, { top: (tap / 2 - 4 + label.offsetHeight) / s, bottom: f.H - tap / 2 / s });
+    bR.style.top = (st.top / f.H * 100) + '%';
+    bR.dataset.vside = 't';
+    bP.style.top = (st.bottom / f.H * 100) + '%';
   }
   function runNow() {
     clearTimeout(timer);
@@ -238,48 +285,57 @@
     update();
     slow = performance.now() - t0 > 50;
   }
-  // 退職の年齢を age にする。欄が空のまま既定と同じ年齢なら、欄に入れない（動いていない）
-  function setRetire(age, compute) {
-    var ri = $('retire-age');
-    if (ri.value === String(age)) return;
-    if (ri.value === '' && last && last.input && last.input.retireAge === age) return;
-    ri.value = age;
+  // 印の欄を age にする。欄が空のまま既定と同じ年齢なら、欄に入れない（動いていない）
+  function setAge(m, age, compute) {
+    var el = m.input;
+    if (el.value === String(age)) return;
+    if (el.value === '' && last && last.input && m.age(last.input) === age) return;
+    el.value = age;
     fromShare = false;
     if (compute) runNow();
   }
-  var markBtn = $('retire-mark');
-  markBtn.addEventListener('keydown', function (e) {
-    var d = RM.keyStep(e.key, e.shiftKey);
-    if (!d || !markView) return;
-    e.preventDefault();
-    var cur = Number(this.dataset.age), next = RM.clamp(cur + d, markView.r);
-    if (next !== cur) setRetire(next, true);   // 範囲の端では動かない（欄にも入れない）
-  });
-  var drag = null;
-  markBtn.addEventListener('pointerdown', function (e) {
-    if (e.button !== 0 || !markView) return;
-    e.preventDefault();
-    this.focus();
-    this.setPointerCapture(e.pointerId);
-    drag = { id: e.pointerId, f: markView.f, r: markView.r, rect: $('chart').querySelector('svg').getBoundingClientRect(), age: Number(this.dataset.age), moved: false };
-  });
-  markBtn.addEventListener('pointermove', function (e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    var px = (e.clientX - drag.rect.left) / drag.rect.width * drag.f.W;
-    var a = RM.clamp(RM.ageAtX(px, drag.f), drag.r);
-    if (a === drag.age) return;
-    drag.age = a; drag.moved = true;
-    setRetire(a, !slow);
-    if (slow) showMark(a, a, drag.f);   // 計算は指を離した時。印だけ指の下に付いてくる
-  });
-  function markUp(e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    var moved = drag.moved;
-    drag = null;
-    if (slow && moved) runNow();
+  function bindMark(m) {
+    var btn = m.btn, drag = null;
+    btn.addEventListener('keydown', function (e) {
+      var d = RM.keyStep(e.key, m.shift && e.shiftKey);
+      if (!d || !m.view) return;
+      e.preventDefault();
+      var cur = Number(this.dataset.age), next = RM.clamp(cur + d, m.view.r);
+      if (next !== cur) setAge(m, next, true);   // 範囲の端では動かない（欄にも入れない）
+    });
+    btn.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || !m.view) return;
+      e.preventDefault();
+      this.focus();
+      this.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, f: m.view.f, r: m.view.r, rect: $('chart').querySelector('svg').getBoundingClientRect(), age: Number(this.dataset.age), moved: false };
+    });
+    btn.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var px = (e.clientX - drag.rect.left) / drag.rect.width * drag.f.W;
+      var a = RM.clamp(RM.ageAtX(px, drag.f), drag.r);
+      if (a === drag.age) return;
+      drag.age = a; drag.moved = true;
+      setAge(m, a, !slow);
+      if (slow) m.show(a, a, drag.f);   // 計算は指を離した時。印だけ指の下に付いてくる
+    });
+    function up(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var moved = drag.moved;
+      drag = null;
+      if (slow && moved) runNow();
+    }
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointercancel', up);
   }
-  markBtn.addEventListener('pointerup', markUp);
-  markBtn.addEventListener('pointercancel', markUp);
+  bindMark(marks.retire);
+  bindMark(marks.pension);
+  // 年金の印: フォーカスが在る間（引いている間を含む）は枠と目盛りを止め、外れたら今の結果で描き直す
+  marks.pension.btn.addEventListener('focus', function () { if (marks.pension.view) hold = marks.pension.view.f; });
+  marks.pension.btn.addEventListener('blur', function () {
+    hold = null;
+    if (last && last.ready) renderChart(last);
+  });
 
   function negText(sum, d) {
     return sum.negAge === null ? d.endAge + ' 歳まで 0 を切りません' : sum.negAge + ' 歳';

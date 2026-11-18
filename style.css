@@ -217,6 +217,9 @@ fieldset.kid legend { font-weight: 700; padding: 0 var(--sp-1); }
 .retire-mark[data-vside="b"] .retire-mark-label { bottom: auto; top: calc(100% - 4px); }
 .retire-mark[data-side="l"] .retire-mark-label { left: 0; transform: none; }
 .retire-mark[data-side="r"] .retire-mark-label { left: auto; right: 0; transform: none; }
+/* 年金を受け取り始める年齢の印（Q-579）: 当たりと動きは退職の印と同じ箱。形はひし形（退職の丸と形で見分ける）。字は置かない */
+.pension-mark-dot { width: 1rem; height: 1rem; transform: rotate(45deg); background: var(--card); border: 3px solid var(--accent); }
+.pension-mark:hover .pension-mark-dot, .pension-mark:active .pension-mark-dot { background: var(--accent); }
 .legend { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); font-size: var(--fs-s); color: var(--muted); }
 .lg-neg { color: var(--error); font-weight: 700; }
 
