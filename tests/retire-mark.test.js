@@ -125,3 +125,43 @@ test('印を動かしても計算の関数は同じ: 欄の値を変えて run �
   assert.ok(rowAt(res, a - 1).work > 0);
   assert.equal(rowAt(res, a).work, 0);
 });
+
+// Q-610: 印にフォーカスが在る間と引いている間は、軸の端を変えない（2 つの印とも。Q-579 の年金の印の作りに合わせる）
+const mainJs = fs.readFileSync(path.join(__dirname, '..', 'main.js'), 'utf8');
+
+test('退職の年齢を動かすと、今の式の縦の端は変わる（止めないと目盛りが手の下で動く）。横の端は変わらない', () => {
+  const f65 = RM.frame(result({ age: '40', retireAge: '65' }), 390);
+  const f70 = RM.frame(result({ age: '40', retireAge: '70' }), 390);
+  assert.notEqual(f65.hi, f70.hi);
+  assert.deepEqual([f65.a0, f65.a1], [f70.a0, f70.a1]);
+});
+
+test('止めた枠のまま退職の年齢を欄の min → max へ動かしても、印は消えず、枠の横の中に在る', () => {
+  const held = RM.frame(result({ age: '40', retireAge: String(MIN) }), 390);
+  for (let a = MIN; a <= MAX; a++) {
+    const res = result({ age: '40', retireAge: String(a) });
+    const mk = RM.place(res, held, RM.range(MIN, MAX, 40));
+    assert.ok(mk, a + ' 歳');
+    assert.equal(mk.at, a);
+    assert.ok(mk.x >= held.L && mk.x <= held.W - held.R, a + ' 歳');
+  }
+});
+
+test('main.js: フォーカスで枠を止め、外れたら今の式で描き直すのは bindMark の中（2 つの印とも）。描くときは止めた枠を先に使う', () => {
+  const body = /function bindMark\(m\) \{[\s\S]*?\n  \}\n/.exec(mainJs)[0];
+  assert.match(body, /btn\.addEventListener\('focus', function \(\) \{ if \(m\.view\) hold = m\.view\.f; \}\);/);
+  assert.match(body, /btn\.addEventListener\('blur', function \(\) \{\s*hold = null;\s*if \(last && last\.ready\) renderChart\(last\);/);
+  assert.match(body, /this\.focus\(\);/, '引き始めにフォーカスを入れる（引いている間も止まる）');
+  assert.doesNotMatch(mainJs, /marks\.(pension|retire)\.btn\.addEventListener\('(focus|blur)'/, '片方の印だけに付けない');
+  assert.match(mainJs, /bindMark\(marks\.retire\);\s*bindMark\(marks\.pension\);/);
+  assert.match(mainJs, /var f = hold \|\| RM\.frame\(res, box\.clientWidth\);/);
+});
+
+test('main.js: 止めた枠を線が超えた分は、枠の上下で切る（線は clipPath の中）', () => {
+  assert.match(mainJs, /<clipPath id="chart-clip"><rect x="0" y="' \+ T \+ '" width="' \+ W \+ '" height="' \+ \(H - T - B\) \+ '"\/><\/clipPath><g clip-path="url\(#chart-clip\)">/);
+  const i = mainJs.indexOf('clip-path="url(#chart-clip)"'), j = mainJs.indexOf("out.push('</g>');");
+  assert.ok(i > 0 && j > i);
+  const inner = mainJs.slice(i, j);
+  assert.match(inner, /<polyline /);
+  assert.match(inner, /class="l-neg"/);
+});

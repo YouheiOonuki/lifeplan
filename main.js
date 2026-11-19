@@ -178,6 +178,8 @@
     }
     out.push('<text x="' + (L - 6) + '" y="' + (T - 2) + '" class="tick" text-anchor="end">万円</text>');
     out.push('<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Yp(0).toFixed(1) + '" y2="' + Yp(0).toFixed(1) + '" class="zero"/>');
+    // 線は枠の上下で切る（印を動かしている間は枠を止めるので、線が枠を超えることがある。Q-610）
+    out.push('<clipPath id="chart-clip"><rect x="0" y="' + T + '" width="' + W + '" height="' + (H - T - B) + '"/></clipPath><g clip-path="url(#chart-clip)">');
     var cls = ['l-base', 'l-exp', 'l-rate'];
     for (var i = sc.length - 1; i >= 0; i--) {
       var pts = sc[i].rows.map(function (r) { return X(r.age).toFixed(1) + ',' + Yp(r.balance).toFixed(1); }).join(' ');
@@ -190,6 +192,7 @@
         out.push('<line x1="' + X(p.age).toFixed(1) + '" y1="' + Yp(p.balance).toFixed(1) + '" x2="' + X(r.age).toFixed(1) + '" y2="' + Yp(r.balance).toFixed(1) + '" class="l-neg"/>');
       }
     });
+    out.push('</g>');
     var n = sc[0].summary.negAge;
     if (n !== null) out.push('<circle cx="' + X(n).toFixed(1) + '" cy="' + Yp(0).toFixed(1) + '" r="5" class="dot-neg"/>');
     if (mk) out.push('<line x1="' + mk.x.toFixed(1) + '" x2="' + mk.x.toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '" class="retire-line"/>');
@@ -208,7 +211,7 @@
   var RM = window.RetireMark;
   var GAP = 8;           // 2 つの印の押す所の間（px）。これより寄る年齢では、退職の印を線の上、年金の印を線の下に置く（Q-579）
   var slow = false;      // 1 回の計算と描き直しが 50 ms を超えたら、引いている間は計算せず、指を離した時だけ計算する
-  var hold = null;       // 年金の印にフォーカスが在る間と引いている間は、この枠と目盛りのまま描く（軸の端を変えない。Q-579）
+  var hold = null;       // 印（2 つとも）にフォーカスが在る間と引いている間は、この枠と目盛りのまま描く（軸の端を変えない。Q-579・Q-610）
   var marks = {
     retire: {
       btn: $('retire-mark'), input: $('retire-age'), shift: true, view: null,   // view = 直近の { f: 枠と目盛り, r: 動かせる範囲 }（引くときに使う）
@@ -347,15 +350,15 @@
     }
     btn.addEventListener('pointerup', up);
     btn.addEventListener('pointercancel', up);
+    // フォーカスが在る間（引いている間を含む。pointerdown で focus する）は枠と目盛りを止め、外れたら今の結果で描き直す（Q-579・Q-610）
+    btn.addEventListener('focus', function () { if (m.view) hold = m.view.f; });
+    btn.addEventListener('blur', function () {
+      hold = null;
+      if (last && last.ready) renderChart(last);
+    });
   }
   bindMark(marks.retire);
   bindMark(marks.pension);
-  // 年金の印: フォーカスが在る間（引いている間を含む）は枠と目盛りを止め、外れたら今の結果で描き直す
-  marks.pension.btn.addEventListener('focus', function () { if (marks.pension.view) hold = marks.pension.view.f; });
-  marks.pension.btn.addEventListener('blur', function () {
-    hold = null;
-    if (last && last.ready) renderChart(last);
-  });
 
   function negText(sum, d) {
     return sum.negAge === null ? d.endAge + ' 歳まで 0 を切りません' : sum.negAge + ' 歳';
