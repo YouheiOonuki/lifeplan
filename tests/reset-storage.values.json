@@ -1,0 +1,13 @@
+{
+  "src": "reset-storage.js",
+  "prefixes": [
+    "lifeplan_"
+  ],
+  "legacy": [],
+  "pagePrefixes": {},
+  "pageLegacy": {},
+  "inline": [],
+  "skipDirs": [
+    "_seido-keisan"
+  ]
+}
