@@ -118,9 +118,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .footer-nav a { color: var(--muted); text-decoration: none; }
 .footer-nav a:hover, .footer-nav a[aria-current="page"] { color: var(--accent); }
 
-@media (max-width: 480px) {
-  .app-header h1 { font-size: var(--fs-l); }
-}
 
 /* ===========================
    画面の骨組み（yorozu-plans の docs/SCREEN.md）
