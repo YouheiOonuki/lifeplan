@@ -1,6 +1,8 @@
 // 計算のテスト: node --test tests/*.test.js
 // ROADMAP 7.22 の検算 4 件（a〜d）と、既定値ファイル・使い方ページの出典の表の突き合わせ、書かない語の検査
-// seido-keisan（手取り・税の計算）は、環境変数 SEIDO_KEISAN_DIR か、となりのフォルダ ../seido-keisan から読む。
+// seido-keisan（手取り・税の計算）は、環境変数 SEIDO_KEISAN_DIR か、となりのフォルダ seido-keisan から読む。
+// となりの場所は git の共通の .git の親から取る（worktree でも主の作業コピーの隣を見る。yorozu-plans D707）。
+// git が無い所（git archive で取り出した木）や隣が無い所では、理由を 1 行出して飛ばす
 // CI（.github/workflows/test.yml）では seido-keisan を取ってきて SEIDO_KEISAN_DIR を渡す。CI で見つからなければ失敗にする
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -10,9 +12,18 @@ const Calc = require('../calc.js');
 const C = require('../constants.js');
 
 const ROOT = path.join(__dirname, '..');
-const SEIDO = [process.env.SEIDO_KEISAN_DIR, path.join(ROOT, '..', 'seido-keisan')].filter(Boolean)
-  .find((d) => fs.existsSync(path.join(d, 'lib', 'take-home.js')));
+function siblingDir(repo) {
+  let common;
+  try {
+    common = require('node:child_process').execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch { return { why: `${repo} を探せない（git の作業コピーの外）` }; }
+  return { dir: path.join(path.dirname(path.dirname(common)), repo) };
+}
+const hasSeido = (d) => fs.existsSync(path.join(d, 'lib', 'take-home.js'));
+const sib = siblingDir('seido-keisan');
+const SEIDO = [process.env.SEIDO_KEISAN_DIR, sib.dir].filter(Boolean).find(hasSeido);
 if (!SEIDO && process.env.CI) throw new Error('seido-keisan が見つからない（SEIDO_KEISAN_DIR）');
+const seidoWhy = sib.why || `seido-keisan が隣に無い（${sib.dir}）`;
 function deps() {
   const L = (f) => require(path.join(SEIDO, 'lib', f));
   return {
@@ -20,7 +31,8 @@ function deps() {
     Juminzei: L('juminzei.js'), JuminzeiValues: L('juminzei-values.js'), Ikukyu: L('ikukyu.js'), KuriageValues: L('kuriage-values.js'),
   };
 }
-const needSeido = { skip: SEIDO ? false : 'seido-keisan が無い（SEIDO_KEISAN_DIR）' };
+const needSeido = { skip: SEIDO ? false : seidoWhy };
+if (!SEIDO) console.log(`# 飛ばす: ${seidoWhy}`);
 
 const Y = 2026;
 // 収入も支出も 0 にした入力（年金・生活費・医療費は 0 を手で入れる。住まいは家賃 0）
