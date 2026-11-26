@@ -1,0 +1,12 @@
+{
+  "module": "calc.js",
+  "tool": "lifeplan",
+  "data": {
+    "draft": {
+      "amount": "1234"
+    }
+  },
+  "required": [
+    "draft"
+  ]
+}
